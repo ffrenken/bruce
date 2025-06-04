@@ -1,4 +1,4 @@
-import type { RequestEvent } from '@sveltejs/kit';
+import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
@@ -16,7 +16,8 @@ export function generateSessionToken() {
 }
 
 export async function createSession(token: string, userId: string) {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+	const encoder = new TextEncoder();
+	const sessionId = encodeHexLowerCase(sha256(encoder.encode(token)));
 	const session: table.Session = {
 		id: sessionId,
 		userId,
@@ -27,10 +28,10 @@ export async function createSession(token: string, userId: string) {
 }
 
 export async function validateSessionToken(token: string) {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const [result] = await db
+	const encoder = new TextEncoder();
+	const sessionId = encodeHexLowerCase(sha256(encoder.encode(token)));
+	const queryset = await db
 		.select({
-			// Adjust user table here to tweak returned data
 			user: { id: table.user.id, username: table.user.username },
 			session: table.session
 		})
@@ -38,19 +39,19 @@ export async function validateSessionToken(token: string) {
 		.innerJoin(table.user, eq(table.session.userId, table.user.id))
 		.where(eq(table.session.id, sessionId));
 
-	if (!result) {
+	if (queryset.length === 0) {
 		return { session: null, user: null };
 	}
-	const { session, user } = result;
+	const [{ session, user }] = queryset;
 
-	const sessionExpired = Date.now() >= session.expiresAt.getTime();
-	if (sessionExpired) {
+	const isExpired = Date.now() >= session.expiresAt.getTime();
+	if (isExpired) {
 		await db.delete(table.session).where(eq(table.session.id, session.id));
 		return { session: null, user: null };
 	}
 
-	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
-	if (renewSession) {
+	const isExpiredSoon = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
+	if (isExpiredSoon) {
 		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
 		await db
 			.update(table.session)
@@ -67,15 +68,15 @@ export async function invalidateSession(sessionId: string) {
 	await db.delete(table.session).where(eq(table.session.id, sessionId));
 }
 
-export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
-	event.cookies.set(sessionCookieName, token, {
+export function setSessionTokenCookie(cookies: Cookies, token: string, expiresAt: Date) {
+	cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
 		path: '/'
 	});
 }
 
-export function deleteSessionTokenCookie(event: RequestEvent) {
-	event.cookies.delete(sessionCookieName, {
+export function deleteSessionTokenCookie(cookies: Cookies) {
+	cookies.delete(sessionCookieName, {
 		path: '/'
 	});
 }
