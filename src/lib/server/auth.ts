@@ -1,7 +1,7 @@
 import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
-import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
+import { encodeBase32LowerCase, encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 
@@ -10,7 +10,8 @@ const DAY_IN_MS = 1000 * 60 * 60 * 24;
 export const sessionCookieName = 'auth-session';
 
 export function generateSessionToken() {
-	const bytes = crypto.getRandomValues(new Uint8Array(18));
+	const array = new Uint8Array(18);
+	const bytes = crypto.getRandomValues(array);
 	const token = encodeBase64url(bytes);
 	return token;
 }
@@ -79,4 +80,11 @@ export function deleteSessionTokenCookie(cookies: Cookies) {
 	cookies.delete(sessionCookieName, {
 		path: '/'
 	});
+}
+
+export function generateUserId() {
+	const array = new Uint8Array(15);
+	const bytes = crypto.getRandomValues(array);
+	const id = encodeBase32LowerCase(bytes);
+	return id;
 }
