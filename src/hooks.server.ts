@@ -32,6 +32,10 @@ export const handle: Handle = handleAuth;
 
 export const init: ServerInit = async () => {
 	// create admin user if it does not exist
+	if (env.ADMIN_USERNAME.length === 0) {
+		return error(500, { message: "Admin username may not be empty." });
+	}
+
 	const query = sql`
 	select exists (select 1 from ${table.user} where
 	${table.user.username} = ${env.ADMIN_USERNAME})
