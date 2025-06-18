@@ -1,11 +1,12 @@
 import { verify } from '@node-rs/argon2';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
+import { redirect } from "sveltekit-flash-message/server";
 import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
-import { superValidate } from 'sveltekit-superforms';
+import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { schema } from './schema.js';
 
@@ -31,6 +32,7 @@ export const actions = {
             .where(eq(table.user.username, form.data.username));
 
         if (queryset.length === 0) {
+            setError(form, "", "Invalid username or password.");
             return fail(400, { form });
         }
 
@@ -44,6 +46,7 @@ export const actions = {
         });
 
         if (!isPasswordCorrect) {
+            setError(form, "", "Invalid username or password.");
             return fail(400, { form });
         }
 
@@ -51,6 +54,6 @@ export const actions = {
         const session = await auth.createSession(sessionToken, user.id);
         auth.setSessionTokenCookie(cookies, sessionToken, session.expiresAt);
 
-        return redirect(302, '/');
+        return redirect('/', { "type": "success", message: `Login successful.` }, cookies);
     }
 } satisfies Actions;

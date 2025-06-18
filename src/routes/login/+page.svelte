@@ -10,7 +10,7 @@
 		validators: zodClient(schema)
 	});
 
-	const { form: formData, enhance, capture, restore } = form;
+	const { form: formData, enhance, capture, restore, errors } = form;
 
 	export const snapshot = { capture, restore };
 </script>
@@ -37,6 +37,11 @@
 		<Description>Must be at least 8 characters.</Description>
 		<FieldErrors />
 	</Fieldset>
+	{#if $errors._errors !== undefined}
+		<div data-fs-error>
+			{$errors._errors}
+		</div>
+	{/if}
 	<button>Login</button>
 </form>
 
@@ -56,6 +61,10 @@
 
 	form {
 		width: 50%;
+	}
+
+	div {
+		margin-bottom: 0.5em;
 	}
 
 	button {

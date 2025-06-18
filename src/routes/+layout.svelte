@@ -5,6 +5,27 @@
 	import MailIcon from '~icons/fe/mail';
 
 	let { data, children } = $props();
+
+	import { getFlash } from 'sveltekit-flash-message';
+	import { page } from '$app/state';
+	import { toast, Toaster } from 'svelte-sonner';
+
+	const flash = getFlash(page);
+
+	$effect(() => {
+		if (!$flash) return;
+
+		switch ($flash.type) {
+			case 'error':
+				toast.error($flash.message);
+				break;
+			case 'success':
+				toast.success($flash.message);
+				break;
+		}
+
+		$flash = undefined;
+	});
 </script>
 
 <div id="container">
@@ -22,6 +43,7 @@
 	<main>
 		{@render children()}
 	</main>
+	<Toaster expand />
 	<footer>
 		<address>
 			<a href="mailto:florian.frenken@rwth-aachen.de"
