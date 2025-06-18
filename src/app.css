@@ -1,0 +1,82 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+html {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        avenir next,
+        avenir,
+        segoe ui,
+        helvetica neue,
+        Adwaita Sans,
+        Cantarell,
+        Ubuntu,
+        roboto,
+        noto,
+        helvetica,
+        arial,
+        sans-serif;
+}
+
+body {
+    line-height: 1.5;
+}
+
+ol,
+ul {
+    list-style: none;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+p {
+    text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    text-wrap: balance;
+}

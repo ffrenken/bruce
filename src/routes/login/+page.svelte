@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { Control, Description, Field, FieldErrors, Label } from 'formsnap';
+	import { Control, Description, Fieldset, FieldErrors, Legend } from 'formsnap';
 	import { schema } from './schema.js';
 
 	let { data } = $props();
@@ -17,25 +17,64 @@
 
 <h1>Login</h1>
 <form method="POST" use:enhance>
-	<Field {form} name="username">
+	<Fieldset {form} name="username">
+		<Legend>Username</Legend>
 		<Control>
 			{#snippet children({ props })}
-				<Label>Username</Label>
 				<input {...props} type="text" bind:value={$formData.username} />
 			{/snippet}
 		</Control>
 		<Description>Enter your username.</Description>
 		<FieldErrors />
-	</Field>
-	<Field {form} name="password">
+	</Fieldset>
+	<Fieldset {form} name="password">
+		<Legend>Password</Legend>
 		<Control>
 			{#snippet children({ props })}
-				<Label>Password</Label>
 				<input {...props} type="password" bind:value={$formData.password} />
 			{/snippet}
 		</Control>
 		<Description>Must be at least 8 characters.</Description>
 		<FieldErrors />
-	</Field>
+	</Fieldset>
 	<button>Login</button>
 </form>
+
+<style>
+	:global([data-fs-fieldset]) {
+		border: 0;
+		margin-bottom: 0.5em;
+	}
+
+	:global([data-fs-error]) {
+		color: #cc0000;
+	}
+
+	:global([data-fs-description]) {
+		font-style: italic;
+	}
+
+	form {
+		width: 50%;
+	}
+
+	button {
+		padding-block: 0.5em;
+		padding-inline: 0.75em;
+		border: 0;
+
+		color: #f0eff4;
+		background-color: #151515ff;
+
+		&:hover {
+			cursor: pointer;
+			filter: brightness(1.7);
+		}
+	}
+
+	input {
+		margin-top: 0.5em;
+		padding: 0.25em;
+		width: 100%;
+	}
+</style>

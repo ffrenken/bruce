@@ -1,4 +1,5 @@
-// for information about these interfaces
+import 'unplugin-icons/types/svelte'
+
 declare global {
 	namespace App {
 		interface Locals {
@@ -8,4 +9,4 @@ declare global {
 	}
 }
 
-export {};
+export { };
