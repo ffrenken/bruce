@@ -1,4 +1,4 @@
-import 'unplugin-icons/types/svelte'
+import 'unplugin-icons/types/svelte';
 
 declare global {
 	namespace App {
@@ -7,9 +7,9 @@ declare global {
 			session: import('$lib/server/auth').SessionValidationResult['session'];
 		}
 		interface PageData {
-			flash?: { type: "success" | "error"; message: string };
+			flash?: { type: 'success' | 'error'; message: string };
 		}
 	}
 }
 
-export { };
+export {};

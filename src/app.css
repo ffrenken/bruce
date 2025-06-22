@@ -1,45 +1,45 @@
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 * {
-    padding: 0;
-    margin: 0;
+	padding: 0;
+	margin: 0;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    html {
-        scroll-behavior: smooth;
-    }
+	html {
+		scroll-behavior: smooth;
+	}
 }
 
 html {
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        avenir next,
-        avenir,
-        segoe ui,
-        helvetica neue,
-        Adwaita Sans,
-        Cantarell,
-        Ubuntu,
-        roboto,
-        noto,
-        helvetica,
-        arial,
-        sans-serif;
+	font-family:
+		-apple-system,
+		BlinkMacSystemFont,
+		avenir next,
+		avenir,
+		segoe ui,
+		helvetica neue,
+		Adwaita Sans,
+		Cantarell,
+		Ubuntu,
+		roboto,
+		noto,
+		helvetica,
+		arial,
+		sans-serif;
 }
 
 body {
-    line-height: 1.5;
+	line-height: 1.5;
 }
 
 ol,
 ul {
-    list-style: none;
+	list-style: none;
 }
 
 img,
@@ -47,15 +47,15 @@ picture,
 video,
 canvas,
 svg {
-    display: block;
-    max-width: 100%;
+	display: block;
+	max-width: 100%;
 }
 
 input,
 button,
 textarea,
 select {
-    font: inherit;
+	font: inherit;
 }
 
 p,
@@ -65,11 +65,11 @@ h3,
 h4,
 h5,
 h6 {
-    overflow-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 p {
-    text-wrap: pretty;
+	text-wrap: pretty;
 }
 
 h1,
@@ -78,5 +78,5 @@ h3,
 h4,
 h5,
 h6 {
-    text-wrap: balance;
+	text-wrap: balance;
 }

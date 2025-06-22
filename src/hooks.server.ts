@@ -33,7 +33,7 @@ export const handle: Handle = handleAuth;
 export const init: ServerInit = async () => {
 	// create admin user if it does not exist
 	if (env.ADMIN_USERNAME.length === 0) {
-		return error(500, { message: "Admin username may not be empty." });
+		return error(500, { message: 'Admin username may not be empty.' });
 	}
 
 	const query = sql`
@@ -47,7 +47,7 @@ export const init: ServerInit = async () => {
 	}
 
 	if (env.ADMIN_PASSWORD.length < 8) {
-		return error(500, { message: "Admin password must be at least 8 characters." });
+		return error(500, { message: 'Admin password must be at least 8 characters.' });
 	}
 
 	const userId = auth.generateUserId();
