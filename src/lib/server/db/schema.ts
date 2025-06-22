@@ -17,3 +17,9 @@ export const session = sqliteTable('session', {
 export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
+
+export const experiment = sqliteTable('experiment', {
+	name: text('name').primaryKey()
+});
+
+export type Experiment = typeof experiment.$inferSelect;
