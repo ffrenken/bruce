@@ -12,7 +12,11 @@ export const deletion = z
 
 export const creation = z
 	.object({
-		name: name
+		name: name,
+		documents: z
+			.instanceof(File, { message: 'Please upload a file.' })
+			.refine((f) => f.size < 100_000, 'Max 100 kB upload size.')
+			.array()
 	})
 	.required()
 	.strict();

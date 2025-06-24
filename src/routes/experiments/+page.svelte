@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Control, Description, FieldErrors, Fieldset, Legend } from 'formsnap';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { superForm } from 'sveltekit-superforms/client';
+	import { filesProxy, superForm } from 'sveltekit-superforms/client';
 	import PlusIcon from '~icons/fe/plus';
 	import TrashIcon from '~icons/fe/trash';
 	import CloseIcon from '~icons/fe/close';
@@ -15,6 +15,8 @@
 
 	const { form: formData, enhance, capture, restore, errors } = form;
 	export const snapshot = { capture, restore };
+
+	const files = filesProxy(form, 'documents');
 
 	let dialog = $state<HTMLDialogElement>();
 </script>
@@ -45,7 +47,7 @@
 </div>
 
 <dialog bind:this={dialog}>
-	<form method="POST" action="?/create" use:enhance>
+	<form method="POST" action="?/create" enctype="multipart/form-data" use:enhance>
 		<h3>Create Experiment</h3>
 		<button aria-label="close" formmethod="DIALOG"><CloseIcon /></button>
 		<Fieldset {form} name="name">
@@ -56,6 +58,16 @@
 				{/snippet}
 			</Control>
 			<Description>Enter a unique name.</Description>
+			<FieldErrors />
+		</Fieldset>
+		<Fieldset {form} name="documents">
+			<Legend>Documents</Legend>
+			<Control>
+				{#snippet children({ props })}
+					<input {...props} type="file" multiple accept=".tsv" bind:files={$files} />
+				{/snippet}
+			</Control>
+			<Description>Upload document files.</Description>
 			<FieldErrors />
 		</Fieldset>
 		{#if $errors._errors !== undefined}
@@ -174,6 +186,24 @@
 		margin-top: 0.5em;
 		padding: 0.25em;
 		width: 100%;
+	}
+
+	dialog input[type='file'] {
+		font-style: italic;
+		text-align: center;
+		background-color: #9e829c;
+		color: #fff;
+
+		&:hover {
+			cursor: pointer;
+		}
+	}
+
+	dialog input[type='file']::file-selector-button {
+		border: 0;
+		padding-block: 0.5em;
+		padding-inline: 0.75em;
+		background-color: #f0eff4;
 	}
 
 	.form-level-error {

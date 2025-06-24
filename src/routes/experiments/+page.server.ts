@@ -1,5 +1,5 @@
 import type { Actions, PageServerLoad } from './$types';
-import { fail, setError, superValidate } from 'sveltekit-superforms';
+import { fail, setError, superValidate, withFiles } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { creation, deletion } from './schema.js';
 import { db } from '$lib/server/db';
@@ -33,8 +33,17 @@ export const actions = {
 			return fail(400, { form });
 		}
 
+		for (const document of form.data.documents) {
+			try {
+				await db.insert(table.document).values({ name: document.name, experiment: form.data.name });
+			} catch {
+				setError(form, '', 'Unknown database error.');
+				return fail(400, { form });
+			}
+		}
+
 		setFlash({ type: 'success', message: 'Experiment created.' }, cookies);
-		return { form };
+		return withFiles({ form });
 	},
 	delete: async ({ request, cookies }) => {
 		const form = await superValidate(request, zod(deletion));

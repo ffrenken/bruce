@@ -22,4 +22,14 @@ export const experiment = sqliteTable('experiment', {
 	name: text('name').primaryKey()
 });
 
+export const document = sqliteTable('document', {
+	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+	name: text('name').notNull(),
+	experiment: text('experiment')
+		.notNull()
+		.references(() => experiment.name, { onDelete: 'cascade' })
+});
+
+export type Document = typeof document.$inferSelect;
+
 export type Experiment = typeof experiment.$inferSelect;
