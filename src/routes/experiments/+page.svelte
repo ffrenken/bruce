@@ -67,7 +67,7 @@
 					<input {...props} type="file" multiple accept=".tsv" bind:files={$files} />
 				{/snippet}
 			</Control>
-			<Description>Upload document files.</Description>
+			<Description>UTF-8 .tsv files with id/text/metadata.</Description>
 			<FieldErrors />
 		</Fieldset>
 		{#if $errors._errors !== undefined}
@@ -189,8 +189,8 @@
 	}
 
 	dialog input[type='file'] {
+		padding: 0;
 		font-style: italic;
-		text-align: center;
 		background-color: #9e829c;
 		color: #fff;
 

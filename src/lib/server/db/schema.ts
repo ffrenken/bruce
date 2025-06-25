@@ -25,6 +25,9 @@ export const experiment = sqliteTable('experiment', {
 export const document = sqliteTable('document', {
 	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
 	name: text('name').notNull(),
+	content: text('content', { mode: 'json' })
+		.notNull()
+		.$type<{ id: string; text: string; metadata: string }[]>(),
 	experiment: text('experiment')
 		.notNull()
 		.references(() => experiment.name, { onDelete: 'cascade' })

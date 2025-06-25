@@ -7,6 +7,7 @@ import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { setFlash } from 'sveltekit-flash-message/server';
 import { LibsqlError } from '@libsql/client';
+import { DocumentError, parseDocument } from '$lib';
 
 export const load: PageServerLoad = async (event) => {
 	const form = await superValidate(zod(creation));
@@ -23,25 +24,33 @@ export const actions = {
 		}
 
 		try {
-			await db.insert(table.experiment).values({ name: form.data.name });
+			await db.transaction(async (tx) => {
+				await tx.insert(table.experiment).values({ name: form.data.name });
+
+				for (const document of form.data.documents) {
+					const text = await document.text();
+					const content = [...parseDocument(document.name, text)];
+					await tx
+						.insert(table.document)
+						.values({ name: document.name, content, experiment: form.data.name });
+				}
+			});
 		} catch (e) {
-			if (e instanceof LibsqlError && e.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
-				setError(form, 'name', 'Experiment name already exists.');
+			if (e instanceof DocumentError) {
+				// @ts-expect-error missing overload still works
+				// array errors do not show up in form by default
+				setError(form, 'documents', e.message);
+			} else if (e instanceof LibsqlError) {
+				if (e.code == 'SQLITE_CONSTRAINT_PRIMARYKEY') {
+					setError(form, 'name', 'Experiment name already exists.');
+				} else {
+					setFlash({ type: 'error', message: `Database error: ${e.message}` }, cookies);
+				}
 			} else {
-				setError(form, '', 'Unknown database error.');
+				setFlash({ type: 'error', message: `Unknown error: ${JSON.stringify(e)}` }, cookies);
 			}
 			return fail(400, { form });
 		}
-
-		for (const document of form.data.documents) {
-			try {
-				await db.insert(table.document).values({ name: document.name, experiment: form.data.name });
-			} catch {
-				setError(form, '', 'Unknown database error.');
-				return fail(400, { form });
-			}
-		}
-
 		setFlash({ type: 'success', message: 'Experiment created.' }, cookies);
 		return withFiles({ form });
 	},
