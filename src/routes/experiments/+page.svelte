@@ -60,6 +60,17 @@
 			<Description>Enter a unique name.</Description>
 			<FieldErrors />
 		</Fieldset>
+		<Fieldset {form} name="instructions">
+			<Legend>Instructions</Legend>
+			<Control>
+				{#snippet children({ props })}
+					<textarea {...props} placeholder="Enter paragraph..." bind:value={$formData.instructions}
+					></textarea>
+				{/snippet}
+			</Control>
+			<Description>One paragraph of plain text.</Description>
+			<FieldErrors />
+		</Fieldset>
 		<Fieldset {form} name="documents">
 			<Legend>Documents</Legend>
 			<Control>
@@ -186,6 +197,13 @@
 		margin-top: 0.5em;
 		padding: 0.25em;
 		width: 100%;
+	}
+
+	dialog textarea {
+		resize: none;
+		padding: 0.25em;
+		width: 100%;
+		margin-top: 0.5em;
 	}
 
 	dialog input[type='file'] {

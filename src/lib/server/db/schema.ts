@@ -19,7 +19,8 @@ export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 
 export const experiment = sqliteTable('experiment', {
-	name: text('name').primaryKey()
+	name: text('name').primaryKey(),
+	instructions: text('instructions').notNull()
 });
 
 export const document = sqliteTable('document', {

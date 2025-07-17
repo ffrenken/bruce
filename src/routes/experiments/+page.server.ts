@@ -25,7 +25,9 @@ export const actions = {
 
 		try {
 			await db.transaction(async (tx) => {
-				await tx.insert(table.experiment).values({ name: form.data.name });
+				await tx
+					.insert(table.experiment)
+					.values({ name: form.data.name, instructions: form.data.instructions });
 
 				for (const document of form.data.documents) {
 					const text = await document.text();
