@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ScrollArea from '$lib/components/ScrollArea.svelte';
+
 	const { data } = $props();
 
 	const content = data.document.content;
@@ -37,7 +39,8 @@
 
 <svelte:window onkeydown={handleInput} />
 
-<div>
+<!-- disable scrollbar during segmentation -->
+<ScrollArea disabled={input.length >= content.length}>
 	{#each segments as segment, i}
 		<p>
 			{#each segment as span (span.id)}
@@ -49,18 +52,12 @@
 			{/if}
 		</p>
 	{/each}
-</div>
+</ScrollArea>
 
 <style>
-	div {
-		width: 50%;
-		box-shadow:
-			0 1px 3px 0 #9e829c,
-			0 1px 2px -1px #9e829c;
-		background-color: #f9f9f9;
-	}
-
 	p {
+		/* ensure consistent and readable document */
+		width: 66ch;
 		padding-block: 0.25em;
 		padding-inline: 0.75em;
 		text-align: justify;
