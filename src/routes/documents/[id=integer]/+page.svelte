@@ -3,6 +3,7 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { arrayProxy, superForm } from 'sveltekit-superforms/client';
 	import { schema } from './schema.js';
+	import ProgressBar from '$lib/components/ProgressBar.svelte';
 
 	const { data } = $props();
 
@@ -54,6 +55,8 @@
 <svelte:window onkeydown={handleInput} />
 
 <form method="POST" use:enhance>
+	<!-- no native <progress> due to browser inconsistencies -->
+	<ProgressBar value={$segmentation.length} max={content.length} />
 	<!-- disable scrollbar during segmentation -->
 	<ScrollArea disabled={$segmentation.length >= content.length}>
 		{#each segments as segment, i}
