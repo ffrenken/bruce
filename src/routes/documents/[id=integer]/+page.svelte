@@ -1,36 +1,50 @@
 <script lang="ts">
 	import ScrollArea from '$lib/components/ScrollArea.svelte';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { arrayProxy, superForm } from 'sveltekit-superforms/client';
+	import { schema } from './schema.js';
 
 	const { data } = $props();
 
+	const form = superForm(data.form, {
+		validators: zodClient(schema),
+		taintedMessage: true,
+		dataType: 'json'
+	});
+
+	const { enhance, capture, restore } = form;
+
+	export const snapshot = { capture, restore };
+
+	// shorthand for accessing form data
+	const { values: segmentation } = arrayProxy(form, 'segmentation');
 	const content = data.document.content;
 
-	// true if span at index marked as boundary
-	let input = $state<boolean[]>([]);
-
 	function handleInput(e: KeyboardEvent) {
-		if (input.length >= content.length) {
+		if ($segmentation.length >= content.length) {
 			return;
 		}
 		switch (e.key) {
 			case ' ':
-			case 'Enter':
+			case 'Enter': {
 				e.preventDefault();
-				input.push(e.key === 'Enter');
+				const isBoundary = e.key === 'Enter';
+				$segmentation = [...$segmentation, isBoundary];
 				break;
+			}
 		}
 	}
 
 	type Span = { id: string; text: string; metadata: string };
 	const segments = $derived.by(() => {
-		return input.reduce(
-			(result, isBoundary, i) => {
+		return $segmentation.reduce(
+			(segments, isBoundary, i) => {
 				if (isBoundary) {
-					result.push([content[i]]);
+					segments.push([content[i]]);
 				} else {
-					result[result.length - 1].push(content[i]);
+					segments[segments.length - 1].push(content[i]);
 				}
-				return result;
+				return segments;
 			},
 			[[]] as Span[][]
 		);
@@ -39,20 +53,25 @@
 
 <svelte:window onkeydown={handleInput} />
 
-<!-- disable scrollbar during segmentation -->
-<ScrollArea disabled={input.length >= content.length}>
-	{#each segments as segment, i}
-		<p>
-			{#each segment as span (span.id)}
-				<span>{span.text}</span>
-			{/each}
-			<!-- current span after last segment if not finished -->
-			{#if i === segments.length - 1 && input.length < content.length}
-				<span class="caret">{content[input.length].text}</span>
-			{/if}
-		</p>
-	{/each}
-</ScrollArea>
+<form method="POST" use:enhance>
+	<!-- disable scrollbar during segmentation -->
+	<ScrollArea disabled={$segmentation.length >= content.length}>
+		{#each segments as segment, i}
+			<p>
+				{#each segment as span (span.id)}
+					<span>{span.text}</span>
+				{/each}
+				<!-- current span after last segment if not finished -->
+				{#if i === segments.length - 1 && $segmentation.length < content.length}
+					<span class="caret">{content[$segmentation.length].text}</span>
+				{/if}
+			</p>
+		{/each}
+	</ScrollArea>
+	{#if $segmentation.length >= content.length}
+		<button>Submit</button>
+	{/if}
+</form>
 
 <style>
 	p {
@@ -110,6 +129,20 @@
 
 		50% {
 			color: black;
+		}
+	}
+
+	button {
+		padding-inline: 1rem;
+		padding-block: 0.5rem;
+		border: 0;
+		margin-top: 0.5em;
+		color: #151515ff;
+		background-color: #f0eff4;
+
+		&:hover {
+			cursor: pointer;
+			filter: brightness(0.9);
 		}
 	}
 </style>

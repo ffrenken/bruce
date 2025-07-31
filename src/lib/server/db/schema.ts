@@ -37,3 +37,13 @@ export const document = sqliteTable('document', {
 export type Document = typeof document.$inferSelect;
 
 export type Experiment = typeof experiment.$inferSelect;
+
+export const annotation = sqliteTable('annotation', {
+	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+	documentId: integer('document_id', { mode: 'number' })
+		.notNull()
+		.references(() => document.id, { onDelete: 'cascade' }),
+	segmentation: text('segmentation', { mode: 'json' }).notNull().$type<boolean[]>()
+});
+
+export type Annotation = typeof annotation.$inferSelect;

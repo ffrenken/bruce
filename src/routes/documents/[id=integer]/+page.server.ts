@@ -1,8 +1,13 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
+import { fail, superValidate } from 'sveltekit-superforms';
+import { schema } from './schema';
+import { zod } from 'sveltekit-superforms/adapters';
+import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { LibsqlError } from '@libsql/client';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const id = parseInt(params.id);
@@ -14,5 +19,35 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const [document] = queryset;
 
-	return { document };
+	const form = await superValidate(zod(schema));
+
+	return { form, document };
 };
+
+export const actions = {
+	default: async ({ request, params, cookies }) => {
+		const documentId = parseInt(params.id);
+
+		const form = await superValidate(request, zod(schema));
+
+		if (!form.valid) {
+			setFlash({ type: 'error', message: 'Invalid form data.' }, cookies);
+			return fail(400, { form });
+		}
+
+		try {
+			await db
+				.insert(table.annotation)
+				.values({ documentId, segmentation: form.data.segmentation });
+		} catch (e) {
+			if (e instanceof LibsqlError) {
+				setFlash({ type: 'error', message: `Database error: ${e.message}` }, cookies);
+			} else {
+				setFlash({ type: 'error', message: `Unknown error: ${JSON.stringify(e)}` }, cookies);
+			}
+			return fail(400, { form });
+		}
+
+		return redirect('/experiments', { type: 'success', message: 'Annotation saved.' }, cookies);
+	}
+} satisfies Actions;
