@@ -13,7 +13,7 @@
 		dataType: 'json'
 	});
 
-	const { enhance, capture, restore } = form;
+	const { form: formData, enhance, capture, restore } = form;
 
 	export const snapshot = { capture, restore };
 
@@ -56,11 +56,25 @@
 
 <form method="POST" use:enhance>
 	<!-- no native <progress> due to browser inconsistencies -->
-	<ProgressBar value={$segmentation.length} max={content.length} />
+	{#if $segmentation.length < content.length}
+		<ProgressBar value={$segmentation.length} max={content.length} />
+	{/if}
 	<!-- disable scrollbar during segmentation -->
 	<ScrollArea disabled={$segmentation.length >= content.length}>
+		{#if $segmentation.length >= content.length}
+			<label for="label">Label</label>
+			<label for="segment">Segment</label>
+		{/if}
 		{#each segments as segment, i}
-			<p>
+			{#if $segmentation.length >= content.length}
+				<input
+					id="label"
+					type="text"
+					placeholder={i === 0 ? 'Enter segment label...' : '>'}
+					bind:value={$formData.labels[i]}
+				/>
+			{/if}
+			<p style:border-left={$segmentation.length >= content.length ? '0.25em solid #9e829c' : null}>
 				{#each segment as span (span.id)}
 					<span>{span.text}</span>
 				{/each}
@@ -72,11 +86,52 @@
 		{/each}
 	</ScrollArea>
 	{#if $segmentation.length >= content.length}
+		<div id="category">
+			<span>This document is a</span><input
+				type="text"
+				aria-label="category"
+				placeholder="Enter category..."
+				bind:value={$formData.category}
+			/>
+			<span>.</span>
+		</div>
 		<button>Submit</button>
 	{/if}
 </form>
 
 <style>
+	form {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+	}
+
+	label[for='label'] {
+		position: sticky;
+		top: 0;
+		padding: 0.25em;
+		color: #3a3e3b;
+		background-color: #f0eff4;
+		font-weight: bold;
+	}
+
+	label[for='segment'] {
+		position: sticky;
+		top: 0;
+		padding-inline: 0.75em;
+		padding-block: 0.25em;
+		color: #3a3e3b;
+		background-color: #f0eff4;
+		border-left: 0.25em solid #9e829c;
+		font-weight: bold;
+	}
+
+	input[type='text'] {
+		padding: 0.25em;
+		border: 0;
+		outline: 0;
+	}
+
 	p {
 		/* ensure consistent and readable document */
 		width: 66ch;
@@ -86,7 +141,7 @@
 		transition: background-color 0.2s ease-in-out;
 
 		&:hover {
-			background-color: #f0eff4;
+			background-color: #f4eef2;
 		}
 	}
 
@@ -135,11 +190,21 @@
 		}
 	}
 
+	#category {
+		margin-inline: auto;
+	}
+
+	#category input {
+		border-bottom: 1px solid #9e829c;
+		margin-left: 1ch;
+		text-align: center;
+	}
+
 	button {
 		padding-inline: 1rem;
 		padding-block: 0.5rem;
 		border: 0;
-		margin-top: 0.5em;
+		margin-inline: auto;
 		color: #151515ff;
 		background-color: #f0eff4;
 

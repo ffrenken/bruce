@@ -19,7 +19,7 @@
 <div
 	role="progressbar"
 	aria-label="Progress"
-	aria-valuenow={progress.current}
+	aria-valuenow={Math.round(progress.current)}
 	class={className}
 	{...rest}
 >

@@ -10,8 +10,9 @@
 
 	const scrolldown: Action<HTMLDivElement> = (node) => {
 		const observer = new MutationObserver(() => {
+			const position = disabled ? 0 : node.scrollHeight;
 			node.scroll({
-				top: node.scrollHeight,
+				top: position,
 				behavior: 'smooth'
 			});
 		});
@@ -29,6 +30,7 @@
 <div
 	id="scrollarea"
 	style={`overflow-y: ${disabled ? 'scroll' : 'hidden'};`}
+	style:grid-template-columns={disabled ? '1fr auto' : 'auto'}
 	role="document"
 	aria-label="Document"
 	tabindex="0"
@@ -41,6 +43,9 @@
 <style>
 	#scrollarea {
 		/* based on line-height */
+		display: grid;
+		grid-auto-rows: min-content;
+		align-items: baseline;
 		height: 9em;
 		box-shadow:
 			0 1px 3px 0 #9e829c,
