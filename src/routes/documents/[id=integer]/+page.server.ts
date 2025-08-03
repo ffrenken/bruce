@@ -36,14 +36,7 @@ export const actions = {
 		}
 
 		try {
-			const { segmentation, labels, category } = form.data;
-
-			await db.insert(table.annotation).values({
-				documentId,
-				segmentation,
-				labels,
-				category
-			});
+			await db.insert(table.annotation).values({ documentId, ...form.data });
 		} catch (e) {
 			if (e instanceof LibsqlError) {
 				setFlash({ type: 'error', message: `Database error: ${e.message}` }, cookies);

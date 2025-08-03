@@ -6,10 +6,12 @@ export const schema = z
 	.object({
 		segmentation: z.array(z.boolean()).nonempty(),
 		labels: z.array(z.string().optional().transform(undefinedIfEmpty)),
-		category: z.string().optional().transform(undefinedIfEmpty)
+		category: z.string().optional().transform(undefinedIfEmpty),
+		rts: z.array(z.number().positive()).nonempty()
 	})
 	.strict()
 	.required()
+	.refine((arg) => arg.segmentation.length == arg.rts.length)
 	.transform((arg, ctx) => {
 		// pad labels to number of segments (+ 1 for implicit first)
 		const segments = arg.segmentation.filter(Boolean).length + 1;

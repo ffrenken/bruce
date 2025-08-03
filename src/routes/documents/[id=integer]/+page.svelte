@@ -4,6 +4,7 @@
 	import { arrayProxy, superForm } from 'sveltekit-superforms/client';
 	import { schema } from './schema.js';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import { onMount } from 'svelte';
 
 	const { data } = $props();
 
@@ -17,6 +18,8 @@
 
 	export const snapshot = { capture, restore };
 
+	onMount(() => performance.mark('start'));
+
 	// shorthand for accessing form data
 	const { values: segmentation } = arrayProxy(form, 'segmentation');
 	const content = data.document.content;
@@ -29,6 +32,13 @@
 			case ' ':
 			case 'Enter': {
 				e.preventDefault();
+				// record response times between actions;
+				// ignores the interval between last input
+				// and page reload, which resets the clock
+				const { startTime } = performance.mark('end');
+				const rt = performance.measure('rt', 'start', 'end');
+				performance.mark('start', { startTime });
+				$formData.rts.push(rt.duration);
 				const isBoundary = e.key === 'Enter';
 				$segmentation = [...$segmentation, isBoundary];
 				break;

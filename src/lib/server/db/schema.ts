@@ -45,7 +45,8 @@ export const annotation = sqliteTable('annotation', {
 		.references(() => document.id, { onDelete: 'cascade' }),
 	segmentation: text('segmentation', { mode: 'json' }).notNull().$type<boolean[]>(),
 	labels: text('labels', { mode: 'json' }).notNull().$type<(string | undefined)[]>(),
-	category: text('category')
+	category: text('category'),
+	rts: text('rts', { mode: 'json' }).notNull().$type<number[]>()
 });
 
 export type Annotation = typeof annotation.$inferSelect;
