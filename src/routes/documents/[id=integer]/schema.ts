@@ -7,7 +7,15 @@ export const schema = z
 		segmentation: z.array(z.boolean()).nonempty(),
 		labels: z.array(z.string().optional().transform(undefinedIfEmpty)),
 		category: z.string().optional().transform(undefinedIfEmpty),
-		rts: z.array(z.number().positive()).nonempty()
+		rts: z.array(z.number().positive()).nonempty(),
+		edits: z.array(
+			z.object({
+				type: z.enum(['undo', 'redo']),
+				index: z.number().nonnegative(),
+				rt: z.number().nonnegative(),
+				isBoundary: z.boolean()
+			})
+		)
 	})
 	.strict()
 	.required()

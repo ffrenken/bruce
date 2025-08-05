@@ -71,6 +71,16 @@
 			<Description>One paragraph of plain text.</Description>
 			<FieldErrors />
 		</Fieldset>
+		<Fieldset {form} name="history">
+			<Legend>History</Legend>
+			<Control>
+				{#snippet children({ props })}
+					<input {...props} type="number" min="0" max="5" bind:value={$formData.history} />
+				{/snippet}
+			</Control>
+			<Description>Zero to disable. Empty for no limit.</Description>
+			<FieldErrors />
+		</Fieldset>
 		<Fieldset {form} name="documents">
 			<Legend>Documents</Legend>
 			<Control>
@@ -191,6 +201,15 @@
 
 	:global([data-fs-description]) {
 		font-style: italic;
+	}
+
+	:global([data-fs-label]:has(> input[type='checkbox'])) {
+		float: right;
+		width: 100%;
+	}
+
+	input[type='checkbox'] {
+		width: auto;
 	}
 
 	dialog input {

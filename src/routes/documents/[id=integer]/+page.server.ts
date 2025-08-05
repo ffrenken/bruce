@@ -19,9 +19,14 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const [document] = queryset;
 
+	const [experiment] = await db
+		.select({ history: table.experiment.history })
+		.from(table.experiment)
+		.where(eq(table.experiment.name, document.experiment));
+
 	const form = await superValidate(zod(schema));
 
-	return { form, document };
+	return { form, document, experiment };
 };
 
 export const actions = {

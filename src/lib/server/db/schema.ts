@@ -20,7 +20,8 @@ export type User = typeof user.$inferSelect;
 
 export const experiment = sqliteTable('experiment', {
 	name: text('name').primaryKey(),
-	instructions: text('instructions').notNull()
+	instructions: text('instructions').notNull(),
+	history: integer('history')
 });
 
 export const document = sqliteTable('document', {
@@ -46,7 +47,10 @@ export const annotation = sqliteTable('annotation', {
 	segmentation: text('segmentation', { mode: 'json' }).notNull().$type<boolean[]>(),
 	labels: text('labels', { mode: 'json' }).notNull().$type<(string | undefined)[]>(),
 	category: text('category'),
-	rts: text('rts', { mode: 'json' }).notNull().$type<number[]>()
+	rts: text('rts', { mode: 'json' }).notNull().$type<number[]>(),
+	edits: text('edits', { mode: 'json' })
+		.notNull()
+		.$type<{ type: 'undo' | 'redo'; index: number; rt: number; isBoundary: boolean }[]>()
 });
 
 export type Annotation = typeof annotation.$inferSelect;

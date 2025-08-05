@@ -22,7 +22,12 @@
 
 	// shorthand for accessing form data
 	const { values: segmentation } = arrayProxy(form, 'segmentation');
+	const { values: edits } = arrayProxy(form, 'edits');
+	const { values: rts } = arrayProxy(form, 'rts');
 	const content = data.document.content;
+
+	type Entry = { index: number; rt: number; isBoundary: boolean };
+	let history: Entry[] = [];
 
 	function handleInput(e: KeyboardEvent) {
 		if ($segmentation.length >= content.length) {
@@ -38,9 +43,45 @@
 				const { startTime } = performance.mark('end');
 				const rt = performance.measure('rt', 'start', 'end');
 				performance.mark('start', { startTime });
-				$formData.rts.push(rt.duration);
+				$rts = [...$rts, rt.duration];
 				const isBoundary = e.key === 'Enter';
 				$segmentation = [...$segmentation, isBoundary];
+				history = []; // truncate previous actions
+				break;
+			}
+			case 'z': {
+				const limit = data.experiment.history ?? Infinity;
+				if (!e.ctrlKey || history.length >= limit) {
+					return;
+				}
+				e.preventDefault();
+				const index = $segmentation.length;
+				const isBoundary = $segmentation[index - 1];
+				$segmentation = $segmentation.slice(0, -1);
+				const rt = $rts[index - 1];
+				$rts = $rts.slice(0, -1);
+				if (isBoundary === undefined || rt === undefined) {
+					return;
+				}
+				const edit = { index, rt, isBoundary };
+				$edits = [...$edits, { type: 'undo', ...edit }];
+				history.push({ index, rt, isBoundary });
+				break;
+			}
+			case 'y': {
+				if (!e.ctrlKey) {
+					return;
+				}
+				e.preventDefault();
+				const entry = history.pop();
+				if (entry === undefined) {
+					return;
+				}
+				const { index, rt, isBoundary } = entry;
+				$rts = [...$rts, rt];
+				$segmentation = [...$segmentation, isBoundary];
+				const edit = { index, rt, isBoundary };
+				$edits = [...$edits, { type: 'redo', ...edit }];
 				break;
 			}
 		}
