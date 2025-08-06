@@ -54,3 +54,20 @@ export const annotation = sqliteTable('annotation', {
 });
 
 export type Annotation = typeof annotation.$inferSelect;
+
+export const survey = sqliteTable('survey', {
+	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+	experiment: text('experiment')
+		.notNull()
+		.references(() => experiment.name, { onDelete: 'cascade' }),
+	age: integer('age').notNull(),
+	gender: text('gender'),
+	languages: text('languages').notNull(),
+	background: text('background').notNull(),
+	intuitiveness: text('intuitiveness').notNull(),
+	ease: text('ease').notNull(),
+	feedback: text('feedback'),
+	valid: integer('valid', { mode: 'boolean' }).notNull()
+});
+
+export type Survey = typeof survey.$inferSelect;

@@ -26,7 +26,7 @@
 
 	{#if data.experiments.length > 0}
 		<ul>
-			{#each data.experiments as experiment}
+			{#each data.experiments as experiment (experiment.name)}
 				<li>
 					<a href={`/experiments/${experiment.name}`}><span>{experiment.name}</span></a>
 					<form method="POST" action="?/delete">
@@ -201,15 +201,6 @@
 
 	:global([data-fs-description]) {
 		font-style: italic;
-	}
-
-	:global([data-fs-label]:has(> input[type='checkbox'])) {
-		float: right;
-		width: 100%;
-	}
-
-	input[type='checkbox'] {
-		width: auto;
 	}
 
 	dialog input {

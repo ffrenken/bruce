@@ -51,6 +51,14 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		return redirect('/experiments', { type: 'success', message: 'Annotation saved.' }, cookies);
+		const [{ name }] = await db
+			.select({ name: table.document.experiment })
+			.from(table.document)
+			.where(eq(table.document.id, documentId));
+		return redirect(
+			`/experiments/${name}/survey`,
+			{ type: 'success', message: 'Annotation saved.' },
+			cookies
+		);
 	}
 } satisfies Actions;

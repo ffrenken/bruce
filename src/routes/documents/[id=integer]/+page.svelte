@@ -116,7 +116,7 @@
 			<label for="label">Label</label>
 			<label for="segment">Segment</label>
 		{/if}
-		{#each segments as segment, i}
+		{#each segments as segment, i (segment)}
 			{#if $segmentation.length >= content.length}
 				<input
 					id="label"
