@@ -19,7 +19,8 @@ export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 
 export const experiment = sqliteTable('experiment', {
-	name: text('name').primaryKey(),
+	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+	name: text('name').notNull(),
 	instructions: text('instructions').notNull(),
 	history: integer('history')
 });
@@ -30,9 +31,9 @@ export const document = sqliteTable('document', {
 	content: text('content', { mode: 'json' })
 		.notNull()
 		.$type<{ id: string; text: string; metadata: string }[]>(),
-	experiment: text('experiment')
+	experimentId: integer('experiment_id', { mode: 'number' })
 		.notNull()
-		.references(() => experiment.name, { onDelete: 'cascade' })
+		.references(() => experiment.id, { onDelete: 'cascade' })
 });
 
 export type Document = typeof document.$inferSelect;
@@ -50,16 +51,19 @@ export const annotation = sqliteTable('annotation', {
 	rts: text('rts', { mode: 'json' }).notNull().$type<number[]>(),
 	edits: text('edits', { mode: 'json' })
 		.notNull()
-		.$type<{ type: 'undo' | 'redo'; index: number; rt: number; isBoundary: boolean }[]>()
+		.$type<{ type: 'undo' | 'redo'; index: number; rt: number; isBoundary: boolean }[]>(),
+	surveyId: integer('survey_id', { mode: 'number' }).references(() => survey.id, {
+		onDelete: 'cascade'
+	})
 });
 
 export type Annotation = typeof annotation.$inferSelect;
 
 export const survey = sqliteTable('survey', {
 	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-	experiment: text('experiment')
+	experimentId: integer('experiment_id', { mode: 'number' })
 		.notNull()
-		.references(() => experiment.name, { onDelete: 'cascade' }),
+		.references(() => experiment.id, { onDelete: 'cascade' }),
 	age: integer('age').notNull(),
 	gender: text('gender'),
 	languages: text('languages').notNull(),

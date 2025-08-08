@@ -25,14 +25,15 @@ export const actions = {
 
 		try {
 			await db.transaction(async (tx) => {
-				await tx.insert(table.experiment).values(form.data);
+				const [{ experimentId }] = await tx
+					.insert(table.experiment)
+					.values(form.data)
+					.returning({ experimentId: table.experiment.id });
 
 				for (const document of form.data.documents) {
 					const text = await document.text();
 					const content = [...parseDocument(document.name, text)];
-					await tx
-						.insert(table.document)
-						.values({ name: document.name, content, experiment: form.data.name });
+					await tx.insert(table.document).values({ name: document.name, content, experimentId });
 				}
 			});
 		} catch (e) {

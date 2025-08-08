@@ -9,7 +9,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { LibsqlError } from '@libsql/client';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, cookies }) => {
 	const id = parseInt(params.id);
 	const queryset = await db.select().from(table.document).where(eq(table.document.id, id));
 
@@ -20,9 +20,20 @@ export const load: PageServerLoad = async ({ params }) => {
 	const [document] = queryset;
 
 	const [experiment] = await db
-		.select({ history: table.experiment.history })
+		.select()
 		.from(table.experiment)
-		.where(eq(table.experiment.name, document.experiment));
+		.where(eq(table.experiment.id, document.experimentId));
+
+	const cookie = cookies.get(experiment.id.toString());
+	const documentIds = JSON.parse(cookie ?? '[]');
+
+	if (documentIds.includes(document.id)) {
+		return redirect(
+			'/experiments',
+			{ type: 'error', message: 'Document already annotated.' },
+			cookies
+		);
+	}
 
 	const form = await superValidate(zod(schema));
 
@@ -51,12 +62,19 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const [{ name }] = await db
-			.select({ name: table.document.experiment })
+		const [{ experimentId }] = await db
+			.select({ experimentId: table.document.experimentId })
 			.from(table.document)
 			.where(eq(table.document.id, documentId));
+
+		const cookie = cookies.get(experimentId.toString());
+		const documentIds = JSON.parse(cookie ?? '[]');
+		documentIds.push(documentId);
+		const value = JSON.stringify(documentIds);
+		cookies.set(experimentId.toString(), value, { path: '/' });
+
 		return redirect(
-			`/experiments/${name}/survey`,
+			`/experiments/${params.name}/survey`,
 			{ type: 'success', message: 'Annotation saved.' },
 			cookies
 		);
