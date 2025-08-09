@@ -5,6 +5,7 @@
 	import PlusIcon from '~icons/fe/plus';
 	import TrashIcon from '~icons/fe/trash';
 	import CloseIcon from '~icons/fe/close';
+	import DownloadIcon from '~icons/fe/download';
 	import { creation } from './schema.js';
 
 	const { data } = $props();
@@ -29,14 +30,23 @@
 			{#each data.experiments as experiment (experiment.name)}
 				<li>
 					<a href={`/experiments/${experiment.name}`}><span>{experiment.name}</span></a>
-					<form method="POST" action="?/delete">
-						{#if data.user}
+					{#if data.user}
+						<a
+							class="download"
+							href={`/experiments/${experiment.name}/download`}
+							target="_blank"
+							download={`${experiment.name}.json`}
+							aria-label="download"
+						>
+							<DownloadIcon />
+						</a>
+						<form method="POST" action="?/delete">
 							<input type="hidden" name="name" value={experiment.name} />
 							<button type="submit" aria-label="delete">
 								<TrashIcon />
 							</button>
-						{/if}
-					</form>
+						</form>
+					{/if}
 				</li>
 			{/each}
 		</ul>
@@ -112,6 +122,8 @@
 
 	li {
 		display: inline-flex;
+		justify-content: space-between;
+		gap: 1em;
 		width: 100%;
 		padding: 0.5em;
 		background-color: #f0eff4;
@@ -121,7 +133,6 @@
 	}
 
 	li a {
-		width: 100%;
 		padding-inline: 0.75em;
 		padding-block: 0.25em;
 		border: 0;
@@ -134,6 +145,14 @@
 			cursor: pointer;
 			text-decoration: underline;
 		}
+	}
+
+	li a:first-of-type {
+		flex-grow: 1;
+	}
+
+	.download {
+		padding: 0.4em;
 	}
 
 	button[aria-label='delete'] {
