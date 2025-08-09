@@ -35,3 +35,5 @@ export const schema = z
 		}
 		return arg;
 	});
+
+export type Schema = z.infer<typeof schema>;

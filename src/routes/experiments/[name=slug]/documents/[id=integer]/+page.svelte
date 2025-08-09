@@ -5,6 +5,7 @@
 	import { schema } from './schema.js';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { onMount } from 'svelte';
+	import CloseIcon from '~icons/fe/close';
 
 	const { data } = $props();
 
@@ -14,7 +15,7 @@
 		dataType: 'json'
 	});
 
-	const { form: formData, enhance, capture, restore } = form;
+	const { form: formData, enhance, capture, restore, submitting } = form;
 
 	export const snapshot = { capture, restore };
 
@@ -101,11 +102,19 @@
 			[[]] as Span[][]
 		);
 	});
+
+	let dialog = $state<HTMLDialogElement>();
+
+	$effect(() => {
+		if ($submitting) {
+			dialog?.close();
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleInput} />
 
-<form method="POST" use:enhance>
+<form id="annotation" method="POST" use:enhance>
 	<!-- no native <progress> due to browser inconsistencies -->
 	{#if $segmentation.length < content.length}
 		<ProgressBar value={$segmentation.length} max={content.length} />
@@ -125,7 +134,10 @@
 					bind:value={$formData.labels[i]}
 				/>
 			{/if}
-			<p style:border-left={$segmentation.length >= content.length ? '0.25em solid #9e829c' : null}>
+			<p
+				class="segment"
+				style:border-left={$segmentation.length >= content.length ? '0.25em solid #9e829c' : null}
+			>
 				{#each segment as span (span.id)}
 					<span>{span.text}</span>
 				{/each}
@@ -146,12 +158,25 @@
 			/>
 			<span>.</span>
 		</div>
-		<button>Submit</button>
+		<button type="button" onclick={() => dialog?.showModal()}>Submit</button>
 	{/if}
 </form>
 
+<dialog bind:this={dialog}>
+	<form method="POST" use:enhance>
+		<h3>Confirmation</h3>
+		<button aria-label="close" formmethod="DIALOG"><CloseIcon /></button>
+		<p>
+			You are about to submit your answers. Would you like to continue with the <em>next</em>
+			document, or <em>stop</em> annotating and go to the survey?
+		</p>
+		<button form="annotation" formaction="?/next">Next</button>
+		<button form="annotation" formaction="?/stop">Stop</button>
+	</form>
+</dialog>
+
 <style>
-	form {
+	form#annotation {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5em;
@@ -187,8 +212,11 @@
 		/* ensure consistent and readable document */
 		width: 66ch;
 		padding-block: 0.25em;
-		padding-inline: 0.75em;
 		text-align: justify;
+	}
+
+	.segment {
+		padding-inline: 0.75em;
 		transition: background-color 0.2s ease-in-out;
 
 		&:hover {
@@ -262,6 +290,31 @@
 		&:hover {
 			cursor: pointer;
 			filter: brightness(0.9);
+		}
+	}
+
+	dialog {
+		place-self: center;
+		padding: 1em;
+		border: 1px solid #291528;
+		box-shadow:
+			0 1px 3px 0 #9e829c,
+			0 1px 2px -1px #9e829c;
+	}
+
+	h3 {
+		display: inline-block;
+	}
+
+	button[aria-label='close'] {
+		float: right;
+		border: 0;
+		padding: 0.25em;
+		background-color: transparent;
+
+		&:hover {
+			cursor: pointer;
+			background-color: #f0eff4;
 		}
 	}
 </style>
