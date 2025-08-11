@@ -6,6 +6,7 @@
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { onMount } from 'svelte';
 	import CloseIcon from '~icons/fe/close';
+	import { getPalette } from '$lib/utils.js';
 
 	const { data } = $props();
 
@@ -26,6 +27,11 @@
 	const { values: edits } = arrayProxy(form, 'edits');
 	const { values: rts } = arrayProxy(form, 'rts');
 	const content = data.document.content;
+
+	const palette = getPalette(
+		content.map((value) => value.metadata),
+		{ seed: data.document.id }
+	);
 
 	type Entry = { index: number; rt: number; isBoundary: boolean };
 	let history: Entry[] = [];
@@ -139,11 +145,13 @@
 				style:border-left={$segmentation.length >= content.length ? '0.25em solid #9e829c' : null}
 			>
 				{#each segment as span (span.id)}
-					<span>{span.text}</span>
+					<span style:color={palette.get(span.metadata)}>{span.text}</span>
 				{/each}
 				<!-- current span after last segment if not finished -->
 				{#if i === segments.length - 1 && $segmentation.length < content.length}
-					<span class="caret">{content[$segmentation.length].text}</span>
+					<span style:color={palette.get(content[$segmentation.length].metadata)} class="caret"
+						>{content[$segmentation.length].text}</span
+					>
 				{/if}
 			</p>
 		{/each}
