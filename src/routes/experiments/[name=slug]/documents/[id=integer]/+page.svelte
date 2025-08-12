@@ -26,11 +26,14 @@
 	const { values: segmentation } = arrayProxy(form, 'segmentation');
 	const { values: edits } = arrayProxy(form, 'edits');
 	const { values: rts } = arrayProxy(form, 'rts');
-	const content = data.document.content;
 
-	const palette = getPalette(
-		content.map((value) => value.metadata),
-		{ seed: data.document.id }
+	const content = $derived(data.document.content);
+
+	const palette = $derived(
+		getPalette(
+			content.map((value) => value.metadata),
+			{ seed: data.document.id }
+		)
 	);
 
 	type Entry = { index: number; rt: number; isBoundary: boolean };

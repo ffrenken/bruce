@@ -28,6 +28,7 @@ export const experiment = sqliteTable('experiment', {
 export const document = sqliteTable('document', {
 	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
 	name: text('name').notNull(),
+	group: text('group'),
 	content: text('content', { mode: 'json' })
 		.notNull()
 		.$type<{ id: string; text: string; metadata: string }[]>(),

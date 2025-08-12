@@ -5,31 +5,42 @@ export class DocumentError extends Error {
 	}
 }
 
-export function* parseDocument(name: string, text: string) {
-	const entries = text
-		.trim()
-		.split(/\r?\n/g)
-		.map((line) => line.split('\t'));
+export async function parseDocument(document: File) {
+	const text = (await document.text()).trim();
+	const name = document.name.substring(0, document.name.lastIndexOf('.')) || document.name;
 
-	if (entries.length < 2) {
-		throw new DocumentError(`'${name}' contains no header and/or data`);
+	const lines = text.split(/\r?\n/g);
+
+	const commentOrHeader = lines.shift();
+	if (commentOrHeader === undefined) {
+		throw new DocumentError(`${name}: empty document`);
 	}
 
-	if (!entries.every((row) => row.length === 3)) {
-		throw new DocumentError(`'${name}' uses invalid column format`);
+	let group: string | null = null;
+	if (commentOrHeader.startsWith('#')) {
+		const match = commentOrHeader?.match(/^#\s*group\s*:\s*(?<group>[\w-]+)\s*$/i);
+		if (match === null || match.groups === undefined) {
+			throw new DocumentError(`${name}: malformed group comment`);
+		} else {
+			({ group } = match.groups);
+		}
+	} else {
+		lines.unshift(commentOrHeader);
+	}
+
+	const table = lines.map((line) => line.split('\t').map((field) => field.trim()));
+	if (!table.every((row) => row.length === 3)) {
+		throw new DocumentError(`${name}: inconsistent column format`);
 	}
 
 	const expected = ['id', 'text', 'metadata'];
-	const [header, ...rest] = entries;
-	if (!header.every((value, index) => value === expected[index])) {
-		throw new DocumentError(`'${name}' has unexpected header ${header.join('/')}`);
+	const header = table.shift();
+	if (header === undefined) {
+		throw new DocumentError(`${name}: missing header`);
+	} else if (!header.every((value, index) => value === expected[index])) {
+		throw new DocumentError(`${name}: unexpected header`);
 	}
 
-	for (const [id, text, metadata] of rest) {
-		yield {
-			id,
-			text,
-			metadata
-		};
-	}
+	const content = table.map(([id, text, metadata]) => ({ id, text, metadata }));
+	return { name, group, content };
 }

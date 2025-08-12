@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, eq, notInArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, notInArray, or, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { error, type ActionFailure } from '@sveltejs/kit';
 import { fail, superValidate, type SuperValidated } from 'sveltekit-superforms';
@@ -11,8 +11,8 @@ import { LibsqlError } from '@libsql/client';
 import type { Cookies } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, cookies }) => {
-	const id = parseInt(params.id);
-	const queryset = await db.select().from(table.document).where(eq(table.document.id, id));
+	const documentId = parseInt(params.id);
+	const queryset = await db.select().from(table.document).where(eq(table.document.id, documentId));
 
 	if (queryset.length === 0) {
 		return error(404, 'Unknown document id.');
@@ -93,13 +93,23 @@ export const actions = {
 
 		const { experimentId, documentIds } = await updateDocuments(documentId, cookies);
 
+		const groups = (
+			await db
+				.select({ group: table.document.group })
+				.from(table.document)
+				.where(and(inArray(table.document.id, documentIds)))
+		)
+			.map(({ group }) => group)
+			.filter((group) => group !== null);
+
 		const queryset = await db
 			.select()
 			.from(table.document)
 			.where(
 				and(
 					eq(table.document.experimentId, experimentId),
-					notInArray(table.document.id, documentIds)
+					notInArray(table.document.id, documentIds),
+					or(isNull(table.document.group), notInArray(table.document.group, groups))
 				)
 			)
 			.orderBy(sql`RANDOM()`)
