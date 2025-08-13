@@ -171,6 +171,16 @@
 		</div>
 		<button type="button" onclick={() => dialog?.showModal()}>Submit</button>
 	{/if}
+	<div class="controls">
+		<dl>
+			<dt><kbd>Space</kbd></dt>
+			<dd>Continue</dd>
+			<dt><kbd>Enter</kbd></dt>
+			<dd>Break</dd>
+			<dt><kbd>Ctrl</kbd>+<kbd>Z</kbd>/<kbd>Y</kbd></dt>
+			<dd>Undo/Redo</dd>
+		</dl>
+	</div>
 </form>
 
 <dialog bind:this={dialog}>
@@ -288,6 +298,29 @@
 		border-bottom: 1px solid #9e829c;
 		margin-left: 1ch;
 		text-align: center;
+	}
+
+	.controls {
+		margin-inline: auto;
+		padding: 1em;
+		border: 1px solid #ccc;
+	}
+
+	dl {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5em;
+	}
+
+	dd {
+		margin-left: auto;
+		font-size: 90%;
+	}
+
+	kbd {
+		background-color: #f0eff4;
+		padding: 0.5em;
+		font-family: monospace;
 	}
 
 	button {
