@@ -4,7 +4,7 @@ import { and, eq, inArray, isNull, notInArray, or, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { error, type ActionFailure } from '@sveltejs/kit';
 import { fail, superValidate, type SuperValidated } from 'sveltekit-superforms';
-import { schema, type Schema } from './schema';
+import { schema, type Schema } from '$lib/schemas/annotation';
 import { zod } from 'sveltekit-superforms/adapters';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { LibsqlError } from '@libsql/client';
@@ -97,7 +97,7 @@ export const actions = {
 			await db
 				.select({ group: table.document.group })
 				.from(table.document)
-				.where(and(inArray(table.document.id, documentIds)))
+				.where(inArray(table.document.id, documentIds))
 		)
 			.map(({ group }) => group)
 			.filter((group) => group !== null);
@@ -109,6 +109,7 @@ export const actions = {
 				and(
 					eq(table.document.experimentId, experimentId),
 					notInArray(table.document.id, documentIds),
+					eq(table.document.isExample, false),
 					or(isNull(table.document.group), notInArray(table.document.group, groups))
 				)
 			)

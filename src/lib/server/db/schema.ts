@@ -34,7 +34,8 @@ export const document = sqliteTable('document', {
 		.$type<{ id: string; text: string; metadata: string }[]>(),
 	experimentId: integer('experiment_id', { mode: 'number' })
 		.notNull()
-		.references(() => experiment.id, { onDelete: 'cascade' })
+		.references(() => experiment.id, { onDelete: 'cascade' }),
+	isExample: integer({ mode: 'boolean' }).notNull()
 });
 
 export type Document = typeof document.$inferSelect;

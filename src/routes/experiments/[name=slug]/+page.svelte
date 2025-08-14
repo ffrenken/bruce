@@ -5,6 +5,7 @@
 <div>
 	<h2>Instructions</h2>
 	<p>{data.experiment.instructions}</p>
+	<a href={`/experiments/${data.experiment.name}/tutorial`}>Tutorial</a>
 	<a href={`/experiments/${data.experiment.name}/documents/${data.document.id}`}>Begin</a>
 </div>
 

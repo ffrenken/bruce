@@ -19,7 +19,8 @@ export const creation = z
 			.instanceof(File, { message: 'Please upload a file.' })
 			.refine((f) => f.size < 100_000, 'Max 100 kB upload size.')
 			.array()
-			.min(1)
+			.min(2),
+		example: z.string().nonempty()
 	})
 	.required()
 	.strict();

@@ -101,6 +101,24 @@
 			<Description>UTF-8 .tsv files with id/text/metadata.</Description>
 			<FieldErrors />
 		</Fieldset>
+		<Fieldset {form} name="example">
+			<Legend>Example</Legend>
+			{#if $files.length > 0}
+				<Control>
+					{#snippet children({ props })}
+						<select {...props} bind:value={$formData.example}>
+							{#each $files as file, i (i)}
+								<option value={file.name}>{file.name}</option>
+							{/each}
+						</select>
+					{/snippet}
+				</Control>
+			{:else}
+				No files selected.
+			{/if}
+			<Description>Practice document for tutorial.</Description>
+			<FieldErrors />
+		</Fieldset>
 		{#if $errors._errors !== undefined}
 			<div class="form-level-error" data-fs-error>{$errors._errors}</div>
 		{/if}
@@ -250,6 +268,14 @@
 		border: 0;
 		padding-block: 0.5em;
 		padding-inline: 0.75em;
+		background-color: #f0eff4;
+	}
+
+	select {
+		width: 100%;
+		padding: 0.5em;
+		margin-top: 0.5em;
+		border: 0;
 		background-color: #f0eff4;
 	}
 

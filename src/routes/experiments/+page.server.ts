@@ -31,8 +31,10 @@ export const actions = {
 					.returning({ experimentId: table.experiment.id });
 
 				for (const file of form.data.documents) {
-					const { name, group, content } = await parseDocument(file);
-					await tx.insert(table.document).values({ name, group, content, experimentId });
+					const document = await parseDocument(file);
+					await tx
+						.insert(table.document)
+						.values({ ...document, experimentId, isExample: file.name === form.data.example });
 				}
 			});
 		} catch (e) {

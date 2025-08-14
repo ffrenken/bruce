@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { error } from '@sveltejs/kit';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { redirect } from 'sveltekit-flash-message/server';
 
 export const load = async ({ params, cookies }) => {
@@ -29,11 +29,11 @@ export const load = async ({ params, cookies }) => {
 		);
 	}
 
-	// experiments must have at least one document
+	// experiments must have at least two documents (one example)
 	const [document] = await db
 		.select()
 		.from(table.document)
-		.where(eq(table.document.experimentId, experiment.id))
+		.where(and(eq(table.document.experimentId, experiment.id), eq(table.document.isExample, false)))
 		.orderBy(sql`RANDOM()`)
 		.limit(1);
 

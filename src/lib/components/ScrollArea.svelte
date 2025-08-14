@@ -10,11 +10,12 @@
 
 	const scrolldown: Action<HTMLDivElement> = (node) => {
 		const observer = new MutationObserver(() => {
-			const position = disabled ? 0 : node.scrollHeight;
-			node.scroll({
-				top: position,
-				behavior: 'smooth'
-			});
+			if (!disabled) {
+				node.scroll({
+					top: node.scrollHeight,
+					behavior: 'smooth'
+				});
+			}
 		});
 		observer.observe(node, { childList: true, subtree: true });
 		return {
