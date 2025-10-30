@@ -21,6 +21,7 @@ export type User = typeof user.$inferSelect;
 export const experiment = sqliteTable('experiment', {
 	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
 	name: text('name').notNull(),
+	labels: integer('labels', { mode: 'boolean' }).notNull(),
 	instructions: text('instructions').notNull(),
 	history: integer('history')
 });

@@ -22,7 +22,7 @@
 	$effect(() => {
 		if ($formData.segmentation[$formData.segmentation.length - 1]) {
 			step = 'b';
-		} else if ($formData.segmentation.length >= content.length) {
+		} else if (data.experiment.labels && $formData.segmentation.length >= content.length) {
 			step = 'c';
 		}
 	});
@@ -54,6 +54,7 @@
 	{form}
 	{content}
 	documentId={data.document.id}
+	labels={data.experiment.labels}
 	history={null}
 	onsubmit={() => goto(`/experiments/${data.experiment.name}`)}
 	disabled={open}

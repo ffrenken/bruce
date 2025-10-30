@@ -9,13 +9,22 @@
 	type Props = {
 		form: SuperForm<Schema, unknown>;
 		content: { id: string; text: string; metadata: string }[];
-		history: number | null;
 		documentId: number;
+		labels: boolean;
+		history: number | null;
 		onsubmit: () => void;
 		disabled: boolean;
 	};
 
-	const { form, content, documentId, history, onsubmit: onSubmit, disabled }: Props = $props();
+	const {
+		form,
+		content,
+		documentId,
+		labels,
+		history,
+		onsubmit: onSubmit,
+		disabled
+	}: Props = $props();
 
 	const { form: formData, enhance } = form;
 
@@ -36,13 +45,17 @@
 	type Entry = { index: number; rt: number; isBoundary: boolean };
 	let editHistory: Entry[] = [];
 	function handleInput(e: KeyboardEvent) {
-		if (disabled || $segmentation.length >= content.length) {
+		if (disabled || $segmentation.length > content.length) {
 			return;
 		}
 		switch (e.key) {
 			case ' ':
 			case 'Enter': {
 				e.preventDefault();
+				// only allow undo/redo if segmentation is incomplete
+				if ($segmentation.length >= content.length) {
+					return;
+				}
 				// record response times between actions;
 				// ignores the interval between last input
 				// and page reload, which resets the clock
@@ -113,17 +126,17 @@
 
 <form id="annotation" method="POST" use:enhance>
 	<!-- no native <progress> due to browser inconsistencies -->
-	{#if $segmentation.length < content.length}
+	{#if $segmentation.length <= content.length}
 		<ProgressBar value={$segmentation.length} max={content.length} />
 	{/if}
 	<!-- disable scrollbar during segmentation -->
-	<ScrollArea disabled={$segmentation.length >= content.length}>
-		{#if $segmentation.length >= content.length}
+	<ScrollArea disabled={labels && $segmentation.length >= content.length}>
+		{#if labels && $segmentation.length >= content.length}
 			<label for="label">Label</label>
 			<label for="segment">Segment</label>
 		{/if}
 		{#each segments as segment, i (i)}
-			{#if $segmentation.length >= content.length}
+			{#if labels && $segmentation.length >= content.length}
 				<input
 					id="label"
 					type="text"
@@ -133,7 +146,9 @@
 			{/if}
 			<p
 				class="segment"
-				style:border-left={$segmentation.length >= content.length ? '0.25em solid #9e829c' : null}
+				style:border-left={labels && $segmentation.length >= content.length
+					? '0.25em solid #9e829c'
+					: null}
 			>
 				{#each segment as span (span.id)}
 					<span style:color={palette.get(span.metadata)}>{span.text}</span>
@@ -148,15 +163,17 @@
 		{/each}
 	</ScrollArea>
 	{#if $segmentation.length >= content.length}
-		<div id="category">
-			<span>This document is a</span><input
-				type="text"
-				aria-label="category"
-				placeholder="Enter category..."
-				bind:value={$formData.category}
-			/>
-			<span>.</span>
-		</div>
+		{#if labels}
+			<div id="category">
+				<span>This document is a</span><input
+					type="text"
+					aria-label="category"
+					placeholder="Enter category..."
+					bind:value={$formData.category}
+				/>
+				<span>.</span>
+			</div>
+		{/if}
 		<button type="button" onclick={onSubmit}>Submit</button>
 	{/if}
 	<div class="controls">

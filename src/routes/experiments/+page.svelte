@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Control, Description, FieldErrors, Fieldset, Legend } from 'formsnap';
+	import { Control, Description, FieldErrors, Fieldset, Label, Legend } from 'formsnap';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { filesProxy, superForm } from 'sveltekit-superforms/client';
 	import PlusIcon from '~icons/fe/plus';
@@ -79,6 +79,17 @@
 				{/snippet}
 			</Control>
 			<Description>One paragraph of plain text.</Description>
+			<FieldErrors />
+		</Fieldset>
+		<Fieldset {form} name="labels">
+			<Legend>Labels</Legend>
+			<Control>
+				{#snippet children({ props })}
+					<input type="checkbox" {...props} bind:checked={$formData.labels} />
+					<Label>Show labelling task</Label>
+				{/snippet}
+			</Control>
+			<Description>Add descriptors to each segment.</Description>
 			<FieldErrors />
 		</Fieldset>
 		<Fieldset {form} name="history">
@@ -251,6 +262,10 @@
 		padding: 0.25em;
 		width: 100%;
 		margin-top: 0.5em;
+	}
+
+	dialog input[type='checkbox'] {
+		width: auto;
 	}
 
 	dialog input[type='file'] {

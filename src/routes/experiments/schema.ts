@@ -15,6 +15,7 @@ export const creation = z
 		name: name,
 		instructions: z.string().nonempty(),
 		history: z.number().nonnegative().nullable(),
+		labels: z.boolean().default(false),
 		documents: z
 			.instanceof(File, { message: 'Please upload a file.' })
 			.refine((f) => f.size < 100_000, 'Max 100 kB upload size.')
