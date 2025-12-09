@@ -1,28 +1,42 @@
 <script lang="ts">
-	import type { Action } from 'svelte/action';
+	import type { Attachment } from 'svelte/attachments';
 	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { Tween } from 'svelte/motion';
 
 	type Props = {
+		labels: boolean;
 		disabled: boolean;
 	} & SvelteHTMLElements['div'];
 
-	const { disabled, children, ...rest }: Props = $props();
+	const { disabled, labels, children, ...rest }: Props = $props();
 
-	const scrolldown: Action<HTMLDivElement> = (node) => {
-		const observer = new MutationObserver(() => {
-			if (!disabled) {
-				node.scroll({
-					top: node.scrollHeight,
-					behavior: 'smooth'
-				});
+	let height = $state<number>();
+	let animate = $state(false);
+
+	const scrolldown: Attachment = (node) => {
+		let nParagraphs = 0;
+		// matches duration of height transition
+		const scroll = new Tween(0, { duration: 300 });
+		const mo = new MutationObserver(() => {
+			const paragraphs = node.querySelectorAll('p');
+			if (paragraphs.length == 0) {
+				return;
 			}
+			// only animate height for new paragraphs
+			// (results in annoying jitter otherwise)
+			animate = nParagraphs < paragraphs.length;
+			nParagraphs = paragraphs.length;
+			height = paragraphs[paragraphs.length - 1].scrollHeight;
+			if (paragraphs.length > 1) {
+				height += paragraphs[paragraphs.length - 2].scrollHeight;
+			}
+			scroll.target = node.scrollHeight;
 		});
-		observer.observe(node, { childList: true, subtree: true });
-		return {
-			destroy() {
-				observer.disconnect();
-			}
-		};
+		$effect(() => {
+			node.scrollTop = scroll.current;
+		});
+		mo.observe(node, { childList: true, subtree: true });
+		return () => mo.disconnect();
 	};
 </script>
 
@@ -30,12 +44,14 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
 	id="scrollarea"
-	style={`overflow-y: ${disabled ? 'scroll' : 'hidden'};`}
-	style:grid-template-columns={disabled ? '1fr auto' : 'auto'}
+	class:animate
+	style:overflow-y={disabled ? 'hidden' : 'scroll'}
+	style:grid-template-columns={labels && !disabled ? '1fr auto' : 'auto'}
+	style:height={disabled ? `${height}px` : '25vh'}
 	role="document"
 	aria-label="Document"
 	tabindex="0"
-	use:scrolldown
+	{@attach scrolldown}
 	{...rest}
 >
 	{@render children?.()}
@@ -47,10 +63,13 @@
 		display: grid;
 		grid-auto-rows: min-content;
 		align-items: baseline;
-		height: 9em;
 		box-shadow:
 			0 1px 3px 0 #9e829c,
 			0 1px 2px -1px #9e829c;
 		background-color: #f9f9f9;
+	}
+
+	.animate {
+		transition: height 300ms ease;
 	}
 </style>

@@ -130,7 +130,7 @@
 		<ProgressBar value={$segmentation.length} max={content.length} />
 	{/if}
 	<!-- disable scrollbar during segmentation -->
-	<ScrollArea disabled={labels && $segmentation.length >= content.length}>
+	<ScrollArea {labels} disabled={$segmentation.length < content.length}>
 		{#if labels && $segmentation.length >= content.length}
 			<label for="label">Label</label>
 			<label for="segment">Segment</label>
