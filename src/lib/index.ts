@@ -1,5 +1,5 @@
 export class DocumentError extends Error {
-	constructor(message: string) {
+	constructor(message: string | undefined = undefined) {
 		super(message);
 		this.name = 'DocumentError';
 	}
