@@ -1,3 +1,4 @@
+import type { BoundaryType } from '$lib/schemas/annotation';
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
@@ -48,13 +49,13 @@ export const annotation = sqliteTable('annotation', {
 	documentId: integer('document_id', { mode: 'number' })
 		.notNull()
 		.references(() => document.id, { onDelete: 'cascade' }),
-	segmentation: text('segmentation', { mode: 'json' }).notNull().$type<boolean[]>(),
+	segmentation: text('segmentation', { mode: 'json' }).notNull().$type<BoundaryType[]>(),
 	labels: text('labels', { mode: 'json' }).notNull().$type<(string | undefined)[]>(),
 	category: text('category'),
 	rts: text('rts', { mode: 'json' }).notNull().$type<number[]>(),
 	edits: text('edits', { mode: 'json' })
 		.notNull()
-		.$type<{ type: 'undo' | 'redo'; index: number; rt: number; isBoundary: boolean }[]>(),
+		.$type<{ type: 'undo' | 'redo'; index: number; rt: number; boundary: BoundaryType }[]>(),
 	surveyId: integer('survey_id', { mode: 'number' }).references(() => survey.id, {
 		onDelete: 'cascade'
 	})

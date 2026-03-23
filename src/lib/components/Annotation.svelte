@@ -4,7 +4,7 @@
 	import ScrollArea from './ScrollArea.svelte';
 	import { getPalette } from '$lib/utils';
 	import { onMount } from 'svelte';
-	import type { Schema } from '$lib/schemas/annotation';
+	import type { Schema, BoundaryType } from '$lib/schemas/annotation';
 
 	type Props = {
 		form: SuperForm<Schema, unknown>;
@@ -42,7 +42,7 @@
 	const { values: edits } = arrayProxy(form, 'edits');
 	const { values: rts } = arrayProxy(form, 'rts');
 
-	type Entry = { index: number; rt: number; isBoundary: boolean };
+	type Entry = { index: number; rt: number; boundary: BoundaryType };
 	let editHistory: Entry[] = [];
 	function handleInput(e: KeyboardEvent) {
 		if (disabled || $segmentation.length > content.length) {
@@ -63,8 +63,8 @@
 				const rt = performance.measure('rt', 'start', 'end');
 				performance.mark('start', { startTime });
 				$rts = [...$rts, rt.duration];
-				const isBoundary = e.key === 'Enter';
-				$segmentation = [...$segmentation, isBoundary];
+				const boundary = e.key === 'Enter' ? (e.shiftKey ? 'soft' : 'hard') : null;
+				$segmentation = [...$segmentation, boundary];
 				editHistory = []; // truncate previous actions
 				break;
 			}
@@ -75,16 +75,16 @@
 				}
 				e.preventDefault();
 				const index = $segmentation.length;
-				const isBoundary = $segmentation[index - 1];
+				const boundary = $segmentation[index - 1];
 				$segmentation = $segmentation.slice(0, -1);
 				const rt = $rts[index - 1];
 				$rts = $rts.slice(0, -1);
-				if (isBoundary === undefined || rt === undefined) {
+				if (boundary === undefined || rt === undefined) {
 					return;
 				}
-				const edit = { index, rt, isBoundary };
+				const edit = { index, rt, boundary };
 				$edits = [...$edits, { type: 'undo', ...edit }];
-				editHistory.push({ index, rt, isBoundary });
+				editHistory.push({ index, rt, boundary });
 				break;
 			}
 			case 'y': {
@@ -96,10 +96,10 @@
 				if (entry === undefined) {
 					return;
 				}
-				const { index, rt, isBoundary } = entry;
+				const { index, rt, boundary } = entry;
 				$rts = [...$rts, rt];
-				$segmentation = [...$segmentation, isBoundary];
-				const edit = { index, rt, isBoundary };
+				$segmentation = [...$segmentation, boundary];
+				const edit = { index, rt, boundary };
 				$edits = [...$edits, { type: 'redo', ...edit }];
 				break;
 			}
@@ -107,18 +107,17 @@
 	}
 
 	type Span = { id: string; text: string; metadata: string };
+	type Segment = { spans: Span[]; type: 'hard' | 'soft' };
+
 	const segments = $derived.by(() => {
-		return $segmentation.reduce(
-			(segments, isBoundary, i) => {
-				if (isBoundary) {
-					segments.push([content[i]]);
-				} else {
-					segments[segments.length - 1].push(content[i]);
-				}
-				return segments;
-			},
-			[[]] as Span[][]
-		);
+		return $segmentation.reduce((segments, boundary, i) => {
+			if (boundary === null) {
+				segments[segments.length - 1].spans.push(content[i]);
+			} else {
+				segments.push({ spans: [content[i]], type: boundary });
+			}
+			return segments;
+		}, [] as Segment[]);
 	});
 </script>
 
@@ -127,7 +126,8 @@
 <form id="annotation" method="POST" use:enhance>
 	<!-- no native <progress> due to browser inconsistencies -->
 	{#if $segmentation.length <= content.length}
-		<ProgressBar value={$segmentation.length} max={content.length} />
+		<!-- subtract 1 from both to start at 0% despite initial default segment -->
+		<ProgressBar value={$segmentation.length - 1} max={content.length - 1} />
 	{/if}
 	<!-- disable scrollbar during segmentation -->
 	<ScrollArea {labels} disabled={$segmentation.length < content.length}>
@@ -144,13 +144,14 @@
 					bind:value={$formData.labels[i]}
 				/>
 			{/if}
+
 			<p
-				class="segment"
+				class={`segment ${segment.type}`}
 				style:border-left={labels && $segmentation.length >= content.length
 					? '0.25em solid #9e829c'
 					: null}
 			>
-				{#each segment as span (span.id)}
+				{#each segment.spans as span (span.id)}
 					<span style:color={palette.get(span.metadata)}>{span.text}</span>
 				{/each}
 				<!-- current span after last segment if not finished -->
@@ -180,8 +181,8 @@
 		<dl>
 			<dt><kbd>Space</kbd></dt>
 			<dd>Continue</dd>
-			<dt><kbd>Enter</kbd></dt>
-			<dd>Break</dd>
+			<dt>(<kbd>Shift</kbd>+)<kbd>Enter</kbd></dt>
+			<dd>(Soft) Break</dd>
 			<dt><kbd>Ctrl</kbd>+<kbd>Z</kbd>/<kbd>Y</kbd></dt>
 			<dd>Undo/Redo</dd>
 		</dl>
@@ -216,7 +217,6 @@
 	}
 
 	input[type='text'] {
-		padding: 0.25em;
 		border: 0;
 		outline: 0;
 	}
@@ -224,8 +224,12 @@
 	p {
 		/* ensure consistent and readable document */
 		width: 66ch;
-		padding-block: 0.25em;
 		text-align: justify;
+	}
+
+	p:not(:first-of-type).hard {
+		padding-top: 1em;
+		text-indent: 1em;
 	}
 
 	.segment {
@@ -268,6 +272,12 @@
 			top: -0.25em;
 			left: -0.25em;
 			animation: blink 1s step-end infinite;
+		}
+	}
+
+	p:not(:first-of-type).hard .caret {
+		&::before {
+			left: -1.25em;
 		}
 	}
 

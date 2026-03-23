@@ -20,7 +20,10 @@
 	let step = $state('a');
 
 	$effect(() => {
-		if ($formData.segmentation[$formData.segmentation.length - 1]) {
+		if (
+			$formData.segmentation.length > 1 &&
+			$formData.segmentation[$formData.segmentation.length - 1] !== null
+		) {
 			step = 'b';
 		} else if (data.experiment.labels && $formData.segmentation.length >= content.length) {
 			step = 'c';
@@ -67,11 +70,13 @@
 	{#if step === 'a'}
 		<p>
 			Press <kbd>Space</kbd> to show the next part of the document. If you think that it starts a
-			new segment, hit <kbd>Enter</kbd> to break. Otherwise continue.
+			new segment, hit <kbd>Enter</kbd> to insert a hard break. If you are not sure, press
+			<kbd>Shift</kbd>+<bkd>Enter</bkd> to insert a soft break instead.
 		</p>
 	{:else if step === 'b'}
 		<p>
-			Each segment is represented as one paragraph. You can undo/redo your decisions by pressing <kbd
+			Each segment is represented as one paragraph. Soft breaks only move to the next line. Hard
+			breaks are also indented and have more spacing. You can undo/redo your decisions by pressing <kbd
 				>Ctrl</kbd
 			>+<kbd>Z</kbd>/<kbd>Y</kbd> respectively.
 		</p>
