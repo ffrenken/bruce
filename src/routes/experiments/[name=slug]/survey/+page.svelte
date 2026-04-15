@@ -62,6 +62,23 @@
 		<Description>Listed in order of dominance.</Description>
 		<FieldErrors />
 	</Fieldset>
+	<Fieldset {form} name="semester">
+		<Legend>Semester</Legend>
+		<Control>
+			{#snippet children({ props })}
+				<input
+					{...props}
+					type="number"
+					placeholder="e.g. 2"
+					min="1"
+					max="100"
+					bind:value={$formData.semester}
+				/>
+			{/snippet}
+		</Control>
+		<Description>In your current degree program.</Description>
+		<FieldErrors />
+	</Fieldset>
 	<Fieldset {form} name="background">
 		<Legend>Cultural Background</Legend>
 		<Control>
@@ -80,16 +97,23 @@
 	<br />
 	<LikertScale
 		{form}
+		name="familiarity"
+		statement="I have read similar texts before."
+		bind:group={$formData.familiarity}
+	/>
+	<LikertScale
+		{form}
 		name="intuitiveness"
-		statement="The experiment felt intuitive."
+		statement="The task design felt intuitive."
 		bind:group={$formData.intuitiveness}
 	/>
 	<LikertScale
 		{form}
-		name="ease"
-		statement="The experiment was easy."
-		bind:group={$formData.ease}
+		name="easiness"
+		statement="The task was easy to complete."
+		bind:group={$formData.easiness}
 	/>
+	<br />
 	<Fieldset {form} name="feedback">
 		<Legend>Further Feedback</Legend>
 		<Control>

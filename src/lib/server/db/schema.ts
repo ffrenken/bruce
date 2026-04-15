@@ -71,9 +71,10 @@ export const survey = sqliteTable('survey', {
 	age: integer('age').notNull(),
 	gender: text('gender'),
 	languages: text('languages').notNull(),
+	semester: integer('semester').notNull(),
 	background: text('background').notNull(),
 	intuitiveness: text('intuitiveness').notNull(),
-	ease: text('ease').notNull(),
+	easiness: text('easíness').notNull(),
 	feedback: text('feedback'),
 	valid: integer('valid', { mode: 'boolean' }).notNull()
 });

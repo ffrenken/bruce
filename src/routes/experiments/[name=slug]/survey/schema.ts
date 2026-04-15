@@ -9,9 +9,11 @@ export const schema = z
 			.default(undefined as unknown as number),
 		gender: z.string().optional(),
 		languages: z.string().nonempty(),
+		semester: z.number().positive().max(100).default(undefined as unknown as number),
 		background: z.string().nonempty(),
+		familiarity: z.string().nonempty(),
 		intuitiveness: z.string().nonempty(),
-		ease: z.string().nonempty(),
+		easiness: z.string().nonempty(),
 		feedback: z.string(),
 		valid: z.boolean().default(undefined as unknown as boolean)
 	})

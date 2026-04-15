@@ -35,7 +35,7 @@ export const actions = {
 					const isExample = file.name === form.data.example;
 					// prevent selecting documents from same group as the example
 					if (isExample && document.group !== null) {
-						setError(form, 'example', "Group must be empty.");
+						setError(form, 'example', 'Group must be empty.');
 						throw new DocumentError();
 					}
 					await tx.insert(table.document).values({ ...document, experimentId, isExample });
