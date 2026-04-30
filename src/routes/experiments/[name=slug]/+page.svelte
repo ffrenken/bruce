@@ -10,10 +10,6 @@
 </div>
 
 <style>
-	div {
-		width: 50%;
-	}
-
 	p {
 		text-align: justify;
 		margin-block: 0.5em;

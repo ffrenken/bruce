@@ -5,6 +5,7 @@
 	import { getPalette } from '$lib/utils';
 	import { onMount } from 'svelte';
 	import type { Schema, BoundaryType } from '$lib/schemas/annotation';
+	import { MediaQuery } from 'svelte/reactivity';
 
 	type Props = {
 		form: SuperForm<Schema, unknown>;
@@ -124,6 +125,11 @@
 		}
 	}
 
+	function simulateKeyPress(key: string, eventInitDict?: Omit<KeyboardEventInit, 'key'>) {
+		const event = new KeyboardEvent('keydown', { key, ...eventInitDict });
+		window.dispatchEvent(event);
+	}
+
 	type Span = { id: string; text: string; metadata: string };
 	type Segment = { spans: Span[]; type: 'soft' | 'hard' | 'default' };
 
@@ -137,6 +143,8 @@
 			return segments;
 		}, [] as Segment[]);
 	});
+
+	const isTouchDevice = new MediaQuery('(pointer:coarse)').current;
 </script>
 
 <svelte:window onkeydown={handleInput} />
@@ -196,30 +204,69 @@
 		<button type="button" onclick={onSubmit}>Submit</button>
 	{/if}
 	<div class="controls">
-		<dl>
-			<dt><kbd>Space</kbd></dt>
-			<dd>Continue</dd>
-			<dt>
-				{#if boundaries.includes('soft') && boundaries.includes('hard')}(<kbd>Shift</kbd>/<kbd
-						>Ctrl</kbd
-					>+)
-				{:else if boundaries.includes('soft')}
-					(<kbd>Shift</kbd>+)
-				{:else if boundaries.includes('hard')}
-					(<kbd>Ctrl</kbd>+)
-				{/if}<kbd>Enter</kbd>
-			</dt>
-			<dd>
-				{#if boundaries.includes('soft') && boundaries.includes('hard')}(Soft / Hard)
-				{:else if boundaries.includes('soft')}
-					(Soft)
-				{:else if boundaries.includes('hard')}
-					(Hard)
-				{/if} Break
-			</dd>
-			<dt><kbd>Ctrl</kbd>+<kbd>Z</kbd>/<kbd>Y</kbd></dt>
-			<dd>Undo / Redo</dd>
-		</dl>
+		{#if isTouchDevice}
+			<div class="buttons">
+				<button type="button" onclick={() => simulateKeyPress(' ')} style:grid-area="space"
+					>Continue (Space)</button
+				>
+
+				{#if boundaries.includes('soft')}
+					<button
+						type="button"
+						onclick={() => simulateKeyPress('Enter', { shiftKey: true })}
+						style:grid-area="soft">Soft Break (Shift + Enter)</button
+					>
+				{/if}
+
+				<button type="button" onclick={() => simulateKeyPress('Enter')} style:grid-area="normal"
+					>Break (Enter)</button
+				>
+
+				{#if boundaries.includes('hard')}
+					<button
+						type="button"
+						onclick={() => simulateKeyPress('Enter', { ctrlKey: true })}
+						style:grid-area="hard">Hard Break (Ctrl + Enter)</button
+					>
+				{/if}
+
+				<button
+					type="button"
+					onclick={() => simulateKeyPress('z', { ctrlKey: true })}
+					style:grid-area="undo">Undo (Ctrl + Z)</button
+				>
+				<button
+					type="button"
+					onclick={() => simulateKeyPress('y', { ctrlKey: true })}
+					style:grid-area="redo">Redo (Ctrl + Y)</button
+				>
+			</div>
+		{:else}
+			<dl>
+				<dt><kbd>Space</kbd></dt>
+				<dd>Continue</dd>
+				<dt>
+					{#if boundaries.includes('soft') && boundaries.includes('hard')}(<kbd>Shift</kbd>/<kbd
+							>Ctrl</kbd
+						>+)
+					{:else if boundaries.includes('soft')}
+						(<kbd>Shift</kbd>+)
+					{:else if boundaries.includes('hard')}
+						(<kbd>Ctrl</kbd>+)
+					{/if}<kbd>Enter</kbd>
+				</dt>
+				<dd>
+					{#if boundaries.includes('soft') && boundaries.includes('hard')}(Soft / Hard)
+					{:else if boundaries.includes('soft')}
+						(Soft)
+					{:else if boundaries.includes('hard')}
+						(Hard)
+					{/if} Break
+				</dd>
+				<dt><kbd>Ctrl</kbd>+<kbd>Z</kbd>/<kbd>Y</kbd></dt>
+				<dd>Undo / Redo</dd>
+			</dl>
+		{/if}
 	</div>
 </form>
 
@@ -344,6 +391,15 @@
 		margin-inline: auto;
 		padding: 1em;
 		border: 1px solid #ccc;
+	}
+
+	.buttons {
+		display: grid;
+		grid-template-areas:
+			'. space .'
+			'soft normal hard'
+			'undo . redo';
+		gap: 0.5em;
 	}
 
 	dl {

@@ -106,8 +106,15 @@
 		justify-content: center;
 		align-items: center;
 		background: #fff;
-		padding-inline: 5em;
-		width: 70%;
+		padding: 1em;
+		width: 100%;
+	}
+
+	@media only screen and (min-width: 961px) {
+		main {
+			width: 70%;
+			padding-inline: 5em;
+		}
 	}
 
 	footer {
