@@ -63,7 +63,16 @@
 				const rt = performance.measure('rt', 'start', 'end');
 				performance.mark('start', { startTime });
 				$rts = [...$rts, rt.duration];
-				const boundary = e.key === 'Enter' ? (e.shiftKey ? 'soft' : 'hard') : null;
+
+				let boundary: BoundaryType = null;
+				if (e.key === 'Enter') {
+					boundary = 'default';
+					if (e.shiftKey && !e.ctrlKey) {
+						boundary = 'soft';
+					} else if (!e.shiftKey && e.ctrlKey) {
+						boundary = 'hard';
+					}
+				}
 				$segmentation = [...$segmentation, boundary];
 				editHistory = []; // truncate previous actions
 				break;
@@ -107,7 +116,7 @@
 	}
 
 	type Span = { id: string; text: string; metadata: string };
-	type Segment = { spans: Span[]; type: 'hard' | 'soft' };
+	type Segment = { spans: Span[]; type: 'soft' | 'hard' | 'default' };
 
 	const segments = $derived.by(() => {
 		return $segmentation.reduce((segments, boundary, i) => {
@@ -181,8 +190,8 @@
 		<dl>
 			<dt><kbd>Space</kbd></dt>
 			<dd>Continue</dd>
-			<dt>(<kbd>Shift</kbd>+)<kbd>Enter</kbd></dt>
-			<dd>(Soft) Break</dd>
+			<dt>(<kbd>Shift</kbd>/<kbd>Ctrl</kbd>+)<kbd>Enter</kbd></dt>
+			<dd>(Soft/Hard) Break</dd>
 			<dt><kbd>Ctrl</kbd>+<kbd>Z</kbd>/<kbd>Y</kbd></dt>
 			<dd>Undo/Redo</dd>
 		</dl>
@@ -227,9 +236,13 @@
 		text-align: justify;
 	}
 
-	p:not(:first-of-type).hard {
-		padding-top: 1em;
+	p:not(:first-of-type):not(.soft) {
 		text-indent: 1em;
+		padding-top: 1em;
+	}
+
+	p:not(:first-of-type).hard {
+		border-top: 1px dashed #9e829c;
 	}
 
 	.segment {
@@ -275,7 +288,7 @@
 		}
 	}
 
-	p:not(:first-of-type).hard .caret {
+	p:not(:first-of-type):not(.soft) .caret {
 		&::before {
 			left: -1.25em;
 		}

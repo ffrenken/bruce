@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 const undefinedIfEmpty = (arg: string | undefined) => (arg?.trim() ? arg : undefined);
-const BoundaryEnum = z.enum(['soft', 'hard']).nullable();
+const BoundaryEnum = z.enum(['soft', 'hard', 'default']).nullable();
 export type BoundaryType = z.infer<typeof BoundaryEnum>;
 
 export const schema = z
 	.object({
-		segmentation: z.array(BoundaryEnum).nonempty().default(['hard']),
+		segmentation: z.array(BoundaryEnum).nonempty().default(['default']),
 		labels: z.array(z.string().optional().transform(undefinedIfEmpty)),
 		category: z.string().optional().transform(undefinedIfEmpty),
 		rts: z.array(z.number().positive()).nonempty().default([Infinity]),

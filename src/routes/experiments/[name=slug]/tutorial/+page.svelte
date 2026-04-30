@@ -69,20 +69,20 @@
 	<button aria-label="close" tabindex="-1" onclick={() => (open = false)}><CloseIcon /></button>
 	{#if step === 'a'}
 		<p>
-			Press <kbd>Space</kbd> to show the next part of the document. If you think that it starts a
-			new segment, hit <kbd>Enter</kbd> to insert a hard break. If you are not sure, press
-			<kbd>Shift</kbd>+<bkd>Enter</bkd> to insert a soft break instead.
+			Look at the text in bold. If you think it belongs to what came before, press <kbd>Space</kbd>.
+			If you think it begins a new paragraph, hit <kbd>Enter</kbd>, or if you are particularly
+			certain, <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. If this part of the text could be the start a new
+			paragraph, but you are unsure, press <kbd>Shift</kbd>+<kbd>Enter</kbd>.
 		</p>
 	{:else if step === 'b'}
 		<p>
-			Each segment is represented as one paragraph. Soft breaks only move to the next line. Hard
-			breaks are also indented and have more spacing. You can undo/redo your decisions by pressing <kbd
-				>Ctrl</kbd
-			>+<kbd>Z</kbd>/<kbd>Y</kbd> respectively.
+			As you can see, the paragraph breaks you insert are marked visually in the text. You can undo
+			and redo your previous decisions up to a point by pressing <kbd>Ctrl</kbd>+<kbd>Z</kbd> or
+			<kbd>Y</kbd> respectively.
 		</p>
 	{:else if step === 'c'}
 		<p>
-			Now enter descriptive labels for each segment you identified, and use them to categorize the
+			Now enter descriptive labels for each paragraph you identified, and use them to categorize the
 			whole document. You may leave inputs blank.
 		</p>
 	{/if}
