@@ -23,6 +23,7 @@ export const experiment = sqliteTable('experiment', {
 	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
 	name: text('name').notNull(),
 	labels: integer('labels', { mode: 'boolean' }).notNull(),
+	boundaries: text('boundaries', { mode: 'json' }).notNull().$type<string[]>(),
 	instructions: text('instructions').notNull(),
 	history: integer('history')
 });

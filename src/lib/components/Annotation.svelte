@@ -11,6 +11,7 @@
 		content: { id: string; text: string; metadata: string }[];
 		documentId: number;
 		labels: boolean;
+		boundaries: string[];
 		history: number | null;
 		onsubmit: () => void;
 		disabled: boolean;
@@ -21,6 +22,7 @@
 		content,
 		documentId,
 		labels,
+		boundaries,
 		history,
 		onsubmit: onSubmit,
 		disabled
@@ -64,17 +66,24 @@
 				performance.mark('start', { startTime });
 				$rts = [...$rts, rt.duration];
 
-				let boundary: BoundaryType = null;
+				let boundary: BoundaryType | undefined = undefined;
 				if (e.key === 'Enter') {
-					boundary = 'default';
-					if (e.shiftKey && !e.ctrlKey) {
+					if (boundaries.includes('soft') && e.shiftKey && !e.ctrlKey) {
 						boundary = 'soft';
-					} else if (!e.shiftKey && e.ctrlKey) {
+					} else if (boundaries.includes('hard') && !e.shiftKey && e.ctrlKey) {
 						boundary = 'hard';
+					} else if (!e.shiftKey && !e.ctrlKey) {
+						boundary = 'default';
 					}
+				} else if (e.key === ' ') {
+					boundary = null;
 				}
-				$segmentation = [...$segmentation, boundary];
-				editHistory = []; // truncate previous actions
+
+				// prevent accidental inputs
+				if (boundary !== undefined) {
+					$segmentation = [...$segmentation, boundary];
+					editHistory = []; // truncate previous actions
+				}
 				break;
 			}
 			case 'z': {
@@ -190,10 +199,26 @@
 		<dl>
 			<dt><kbd>Space</kbd></dt>
 			<dd>Continue</dd>
-			<dt>(<kbd>Shift</kbd>/<kbd>Ctrl</kbd>+)<kbd>Enter</kbd></dt>
-			<dd>(Soft/Hard) Break</dd>
+			<dt>
+				{#if boundaries.includes('soft') && boundaries.includes('hard')}(<kbd>Shift</kbd>/<kbd
+						>Ctrl</kbd
+					>+)
+				{:else if boundaries.includes('soft')}
+					(<kbd>Shift</kbd>+)
+				{:else if boundaries.includes('hard')}
+					(<kbd>Ctrl</kbd>+)
+				{/if}<kbd>Enter</kbd>
+			</dt>
+			<dd>
+				{#if boundaries.includes('soft') && boundaries.includes('hard')}(Soft / Hard)
+				{:else if boundaries.includes('soft')}
+					(Soft)
+				{:else if boundaries.includes('hard')}
+					(Hard)
+				{/if} Break
+			</dd>
 			<dt><kbd>Ctrl</kbd>+<kbd>Z</kbd>/<kbd>Y</kbd></dt>
-			<dd>Undo/Redo</dd>
+			<dd>Undo / Redo</dd>
 		</dl>
 	</div>
 </form>

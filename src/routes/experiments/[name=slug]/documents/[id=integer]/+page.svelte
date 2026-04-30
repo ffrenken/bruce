@@ -33,6 +33,7 @@
 	{content}
 	documentId={data.document.id}
 	labels={data.experiment.labels}
+	boundaries={data.experiment.boundaries}
 	history={data.experiment.history}
 	onsubmit={() => dialog?.showModal()}
 	disabled={false}

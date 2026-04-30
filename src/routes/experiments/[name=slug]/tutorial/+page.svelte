@@ -58,6 +58,7 @@
 	{content}
 	documentId={data.document.id}
 	labels={data.experiment.labels}
+	boundaries={data.experiment.boundaries}
 	history={null}
 	onsubmit={() => goto(`/experiments/${data.experiment.name}`)}
 	disabled={open}
@@ -70,9 +71,12 @@
 	{#if step === 'a'}
 		<p>
 			Look at the text in bold. If you think it belongs to what came before, press <kbd>Space</kbd>.
-			If you think it begins a new paragraph, hit <kbd>Enter</kbd>, or if you are particularly
-			certain, <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. If this part of the text could be the start a new
-			paragraph, but you are unsure, press <kbd>Shift</kbd>+<kbd>Enter</kbd>.
+			If you think it begins a new paragraph, hit
+			<kbd>Enter</kbd>{#if data.experiment.boundaries.includes('hard')}, or if you are particularly
+				certain, <kbd>Ctrl</kbd>+<kbd>Enter</kbd>{/if}. {#if data.experiment.boundaries.includes('soft')}If
+				this part of the text could be the start of a new paragraph, but you are unsure, press <kbd
+					>Shift</kbd
+				>+<kbd>Enter</kbd>.{/if}
 		</p>
 	{:else if step === 'b'}
 		<p>

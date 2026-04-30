@@ -92,6 +92,23 @@
 			<Description>Add descriptors to each segment.</Description>
 			<FieldErrors />
 		</Fieldset>
+		<Fieldset {form} name="boundaries">
+			<Legend>Boundaries</Legend>
+			<Control>
+				{#snippet children({ props })}
+					<input type="checkbox" {...props} bind:group={$formData.boundaries} value="soft" />
+					<Label>Soft</Label>
+				{/snippet}
+			</Control>
+			<Control>
+				{#snippet children({ props })}
+					<input type="checkbox" {...props} bind:group={$formData.boundaries} value="hard" />
+					<Label>Hard</Label>
+				{/snippet}
+			</Control>
+			<Description>Enable special boundary types.</Description>
+			<FieldErrors />
+		</Fieldset>
 		<Fieldset {form} name="history">
 			<Legend>History</Legend>
 			<Control>
