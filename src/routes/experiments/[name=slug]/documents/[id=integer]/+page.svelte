@@ -21,6 +21,9 @@
 
 	let dialog = $state<HTMLDialogElement>();
 
+	let instructions = $state<HTMLDialogElement>();
+	let disabled = $state(false);
+
 	$effect(() => {
 		if ($submitting) {
 			dialog?.close();
@@ -36,8 +39,32 @@
 	boundaries={data.experiment.boundaries}
 	history={data.experiment.history}
 	onsubmit={() => dialog?.showModal()}
-	disabled={false}
+	{disabled}
 />
+
+<button
+	class="instructions"
+	type="button"
+	onclick={() => {
+		instructions?.showModal();
+		disabled = true;
+	}}>Instructions</button
+>
+
+<dialog
+	bind:this={instructions}
+	onclose={() => {
+		disabled = false;
+	}}
+>
+	<form method="POST">
+		<h3>Instructions</h3>
+		<button aria-label="close" formmethod="DIALOG"><CloseIcon /></button>
+		<p>
+			{data.experiment.instructions}
+		</p>
+	</form>
+</dialog>
 
 <dialog bind:this={dialog}>
 	<form method="POST">
@@ -72,6 +99,10 @@
 			cursor: pointer;
 			filter: brightness(0.9);
 		}
+	}
+
+	button.instructions {
+		margin-top: 0.5em;
 	}
 
 	dialog {
