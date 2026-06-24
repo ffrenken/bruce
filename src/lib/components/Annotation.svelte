@@ -48,7 +48,7 @@
 	type Entry = { index: number; rt: number; boundary: BoundaryType };
 	let editHistory: Entry[] = [];
 	function handleInput(e: KeyboardEvent) {
-		if (disabled || $segmentation.length > content.length) {
+		if (disabled || $segmentation.length >= content.length) {
 			return;
 		}
 		switch (e.key) {
@@ -135,10 +135,15 @@
 
 	const segments = $derived.by(() => {
 		return $segmentation.reduce((segments, boundary, i) => {
+			const span = content[i];
+			// segmentation still has length of previous document on initial load
+			if (span === undefined) {
+				return segments;
+			}
 			if (boundary === null) {
-				segments[segments.length - 1].spans.push(content[i]);
+				segments[segments.length - 1].spans.push(span);
 			} else {
-				segments.push({ spans: [content[i]], type: boundary });
+				segments.push({ spans: [span], type: boundary });
 			}
 			return segments;
 		}, [] as Segment[]);

@@ -145,7 +145,7 @@
 			{$errors._errors}
 		</div>
 	{/if}
-	<button>Submit</button>
+	<button type="submit">Submit</button>
 </form>
 
 <style>

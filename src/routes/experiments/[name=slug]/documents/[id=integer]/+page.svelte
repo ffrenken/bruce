@@ -59,7 +59,9 @@
 >
 	<form method="POST">
 		<h3>Instructions</h3>
-		<button aria-label="close" formmethod="DIALOG"><CloseIcon /></button>
+		<button type="button" aria-label="close" onclick={() => instructions?.close()}
+			><CloseIcon /></button
+		>
 		<p>
 			{data.experiment.instructions}
 		</p>
@@ -69,13 +71,13 @@
 <dialog bind:this={dialog}>
 	<form method="POST">
 		<h3>Confirmation</h3>
-		<button aria-label="close" formmethod="DIALOG"><CloseIcon /></button>
+		<button type="button" aria-label="close" onclick={() => dialog?.close()}><CloseIcon /></button>
 		<p>
 			You are about to submit your answers. Would you like to continue with the <em>next</em>
 			document, or <em>stop</em> annotating and go to the survey?
 		</p>
-		<button form="annotation" formaction="?/next">Next</button>
-		<button form="annotation" formaction="?/stop">Stop</button>
+		<button type="submit" form="annotation" formaction="?/next">Next</button>
+		<button type="submit" form="annotation" formaction="?/stop">Stop</button>
 	</form>
 </dialog>
 
