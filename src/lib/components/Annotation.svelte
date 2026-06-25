@@ -94,6 +94,9 @@
 				}
 				e.preventDefault();
 				const index = $segmentation.length;
+				if (index <= 1) {
+					return;
+				}
 				const boundary = $segmentation[index - 1];
 				$segmentation = $segmentation.slice(0, -1);
 				const rt = $rts[index - 1];
