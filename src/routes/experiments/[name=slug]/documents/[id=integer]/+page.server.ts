@@ -114,7 +114,10 @@ export const actions = {
 					or(isNull(table.document.group), notInArray(table.document.group, groups))
 				)
 			)
-			.orderBy(sql`RANDOM()`)
+			.orderBy(
+				sql`(SELECT COUNT(*) FROM ${table.annotation} WHERE ${table.annotation.documentId} = ${table.document.id})`,
+				sql`RANDOM()`
+			)
 			.limit(1);
 
 		if (queryset.length === 0) {

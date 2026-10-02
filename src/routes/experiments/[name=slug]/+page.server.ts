@@ -34,7 +34,10 @@ export const load = async ({ params, cookies }) => {
 		.select()
 		.from(table.document)
 		.where(and(eq(table.document.experimentId, experiment.id), eq(table.document.isExample, false)))
-		.orderBy(sql`RANDOM()`)
+		.orderBy(
+			sql`(SELECT COUNT(*) FROM ${table.annotation} WHERE ${table.annotation.documentId} = ${table.document.id})`,
+			sql`RANDOM()`
+		)
 		.limit(1);
 
 	return { experiment, document };
