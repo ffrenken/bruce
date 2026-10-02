@@ -21,14 +21,12 @@ export const GET = async ({ params, locals }) => {
 		.from(table.annotation)
 		.where(inArray(table.annotation.documentId, documentIds));
 
-	const surveyIds = annotations
-		.map((annotation) => annotation.surveyId)
-		.filter((surveyId) => surveyId !== null);
-
 	const surveys = await db
-		.selectDistinct()
+		.select()
 		.from(table.survey)
-		.where(inArray(table.survey.id, surveyIds));
+		.innerJoin(table.experiment, eq(table.survey.experimentId, table.experiment.id))
+		.where(eq(table.experiment.name, params.name))
+		.then((rows) => rows.map((row) => row.survey));
 
 	const data = { annotations, surveys };
 

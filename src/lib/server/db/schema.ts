@@ -1,5 +1,5 @@
 import type { BoundaryType } from '$lib/schemas/annotation';
-import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
@@ -57,27 +57,30 @@ export const annotation = sqliteTable('annotation', {
 	edits: text('edits', { mode: 'json' })
 		.notNull()
 		.$type<{ type: 'undo' | 'redo'; index: number; rt: number; boundary: BoundaryType }[]>(),
-	surveyId: integer('survey_id', { mode: 'number' }).references(() => survey.id, {
-		onDelete: 'cascade'
-	})
+	participantId: text('participant_id').notNull()
 });
 
 export type Annotation = typeof annotation.$inferSelect;
 
-export const survey = sqliteTable('survey', {
-	id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
-	experimentId: integer('experiment_id', { mode: 'number' })
-		.notNull()
-		.references(() => experiment.id, { onDelete: 'cascade' }),
-	age: integer('age').notNull(),
-	gender: text('gender'),
-	languages: text('languages').notNull(),
-	semester: integer('semester').notNull(),
-	background: text('background').notNull(),
-	intuitiveness: text('intuitiveness').notNull(),
-	easiness: text('easíness').notNull(),
-	feedback: text('feedback'),
-	valid: integer('valid', { mode: 'boolean' }).notNull()
-});
+export const survey = sqliteTable(
+	'survey',
+	{
+		id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
+		experimentId: integer('experiment_id', { mode: 'number' })
+			.notNull()
+			.references(() => experiment.id, { onDelete: 'cascade' }),
+		participantId: text('participant_id').notNull(),
+		age: integer('age').notNull(),
+		gender: text('gender'),
+		languages: text('languages').notNull(),
+		semester: integer('semester').notNull(),
+		background: text('background').notNull(),
+		intuitiveness: text('intuitiveness').notNull(),
+		easiness: text('easíness').notNull(),
+		feedback: text('feedback'),
+		valid: integer('valid', { mode: 'boolean' }).notNull()
+	},
+	(t) => [unique().on(t.experimentId, t.participantId)]
+);
 
 export type Survey = typeof survey.$inferSelect;

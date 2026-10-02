@@ -1,4 +1,5 @@
 import { error, type Handle, type ServerInit } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
 import * as auth from '$lib/server/auth.js';
 import * as table from '$lib/server/db/schema.js';
 import { db } from '$lib/server/db';
@@ -28,7 +29,22 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = handleAuth;
+const handleParticipant: Handle = async ({ event, resolve }) => {
+	let participantId = event.cookies.get('participant');
+
+	if (participantId === undefined) {
+		participantId = crypto.randomUUID();
+		event.cookies.set('participant', participantId, {
+			path: '/',
+			maxAge: 60 * 60 * 24 * 365
+		});
+	}
+
+	event.locals.participantId = participantId;
+	return resolve(event);
+};
+
+export const handle: Handle = sequence(handleParticipant, handleAuth);
 
 export const init: ServerInit = async () => {
 	// create admin user if it does not exist

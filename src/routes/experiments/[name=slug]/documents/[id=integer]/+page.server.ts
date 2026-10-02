@@ -44,7 +44,8 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 async function saveAnnotation(
 	documentId: number,
 	form: SuperValidated<Schema>,
-	cookies: Cookies
+	cookies: Cookies,
+	participantId: string
 ): Promise<ActionFailure<{ form: SuperValidated<Schema> }> | undefined> {
 	if (!form.valid) {
 		setFlash({ type: 'error', message: 'Invalid form data.' }, cookies);
@@ -52,7 +53,7 @@ async function saveAnnotation(
 	}
 
 	try {
-		await db.insert(table.annotation).values({ documentId, ...form.data });
+		await db.insert(table.annotation).values({ documentId, participantId, ...form.data });
 	} catch (e) {
 		if (e instanceof LibsqlError) {
 			setFlash({ type: 'error', message: `Database error: ${e.message}` }, cookies);
@@ -80,12 +81,12 @@ async function updateDocuments(
 }
 
 export const actions = {
-	next: async ({ request, params, cookies }) => {
+	next: async ({ request, params, cookies, locals }) => {
 		const documentId = parseInt(params.id);
 
 		const form = await superValidate(request, zod(schema));
 
-		const error = await saveAnnotation(documentId, form, cookies);
+		const error = await saveAnnotation(documentId, form, cookies, locals.participantId);
 
 		if (error !== undefined) {
 			return error;
@@ -131,12 +132,12 @@ export const actions = {
 			cookies
 		);
 	},
-	stop: async ({ request, params, cookies }) => {
+	stop: async ({ request, params, cookies, locals }) => {
 		const documentId = parseInt(params.id);
 
 		const form = await superValidate(request, zod(schema));
 
-		const error = await saveAnnotation(documentId, form, cookies);
+		const error = await saveAnnotation(documentId, form, cookies, locals.participantId);
 
 		if (error !== undefined) {
 			return error;
