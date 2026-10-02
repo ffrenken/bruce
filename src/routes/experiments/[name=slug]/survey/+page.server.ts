@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params, cookies, locals }) => {
 		.limit(1);
 
 	if (surveys.length > 0) {
-		return redirect('/experiments', { type: 'error', message: 'Survey already taken.' }, cookies);
+		return redirect('/experiments', { type: 'error', message: 'Survey already taken. Thank you for completing the experiment!' }, cookies);
 	}
 
 	const form = await superValidate(zod(schema));
@@ -69,6 +69,6 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		return redirect('/experiments', { type: 'success', message: 'Survey saved.' }, cookies);
+		return redirect('/experiments', { type: 'success', message: 'Survey saved. Thank you for completing the experiment!' }, cookies);
 	}
 } satisfies Actions;

@@ -123,7 +123,7 @@ export const actions = {
 		if (queryset.length === 0) {
 			return redirect(
 				`/experiments/${params.name}/survey`,
-				{ type: 'error', message: 'Redirected to survey.' },
+				{ type: 'error', message: 'No more documents available. Redirecting to survey.' },
 				cookies
 			);
 		}
